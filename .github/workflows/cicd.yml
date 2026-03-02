@@ -147,7 +147,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN_DEV }}
-          aws-region: ${{ vars.AWS_REGION_DEV }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Deploy to Dev S3 bucket (sync)
         run: |
