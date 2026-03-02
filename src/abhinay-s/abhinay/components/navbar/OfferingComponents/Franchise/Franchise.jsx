@@ -67,8 +67,14 @@ import TopFranchiseOpportunities from "./TopFranchiseOpportunities.jsx";
 import DistributionCategories from "./DistributionCategories.jsx";
 import Cities from "./Cities.jsx";
 import ExploreByCategories from "./ExploreByCategories.jsx";
+import { useChatbot } from "../../../../ChatbotContext.jsx";
+import FloatingChatbot from "../../../../FloatingChatbot.jsx";
+import Chatlisting from "./Chatlisting.jsx";
+
 // Insights import was unused; removed to avoid lint warnings
 export default function Franchise() {
+      const { showChatbot, setShowChatbot } = useChatbot();
+    
   //order is so important here
   const navigate = useNavigate();
   const location = useLocation();
@@ -326,12 +332,14 @@ useEffect(() => {
 
           {/* Search Bar */}
           {/* <h1>hi</h1> */}
-          <ChatbotSub
+          {/* <ChatbotSub
             placeholder="Ask about franchises (e.g., 'suggest biryani franchise in Ghaziabad with 20% ROI')"
             context="franchise"
             initialQuery={questionFromUrl}
             autoSubmit={autoSubmit}
-          />
+          /> */}
+
+          <Chatlisting />
 
           {/* Subtext */}
           <p className="text-sm sm:text-md text-gray-500 mt-3 sm:mt-4 max-w-xl sm:max-w-2xl mx-auto px-2 sm:px-0 leading-relaxed">
@@ -355,26 +363,98 @@ useEffect(() => {
 
 
       <div className="max-w-7xl mx-auto px-6 py-12">
-        {/* Heading */}
-        <h2 className="text-3xl font-bold text-gray-900">
-          Top Categories of Distribution
-        </h2>
-        <p className="text-gray-500 mt-2">
-          From retail to services-explore categories driving India’s next wave
-          of business growth.
-        </p>
-
-        {/* Content */}
-       {true && (
-  <DistributionCategories daata={distributionData} />
-)}
-
+        
+        
         {exploreCategoriesData && (
           <ExploreByCategories daata={exploreCategoriesData} />
         )}
 
 
       </div>
+      
+      {/* Floating Chatbot */}
+        {showChatbot && (
+          //                     <div className="fixed inset-10 z-50 flex items-end justify-center pointer-events-none">
+          //                         <div className="pointer-events-auto bg-white rounded-t-3xl shadow-3xl w-full max-w-2xl mb-0 animate-slide-up relative">
+          //                             {/* Close Button - Positioned to the right */}
+          //                             <button
+          //                                 onClick={() => setShowChatbot(false)}
+          //                                 className="absolute -right-12 top-6 p-2 bg-white hover:bg-gray-100 rounded-full transition-colors shadow-lg"
+          //                             >
+          //                                 <X className="w-5 h-5 text-gray-600" />
+          //                             </button>
+
+          //                             {/* Chatbot Content */}
+
+          //                             {/* Input Container */}
+          //                             <div
+          //   className="
+          //     flex items-center gap-2
+          //     border-2 border-gray-200 rounded-xl
+          //     px-4 py-3
+          //     bg-white
+          //     shadow-[0_0_12px_#6D3E93]/40
+          //     hover:shadow-[0_0_16px_#6D3E93]/60
+          //     transition-all duration-300
+          //   "
+          // >
+
+          //                                 <input
+          //                                     type="text"
+          //                                     value={query}
+          //                                     onChange={(e) => setQuery(e.target.value)}
+          //                                     onKeyPress={(e) => e.key === 'Enter' && handleSubmit(e)}
+          //                                     placeholder="Ask me anything..."
+          //                                     className="flex-1 outline-none bg-transparent text-gray-800 placeholder-gray-400"
+          //                                 />
+
+          //                                 {/* Microphone Button */}
+          //                                 <button
+          //                                     onClick={toggleListening}
+          //                                     disabled={!speechSupported}
+          //                                     title={
+          //                                         speechSupported
+          //                                             ? isListening
+          //                                                 ? 'Listening… click to stop'
+          //                                                 : 'Speak your query'
+          //                                             : 'Voice input not supported'
+          //                                     }
+          //                                     className={`rounded-md p-1 transition-colors ${isListening ? 'bg-red-100' : 'bg-transparent'
+          //                                         } ${!speechSupported
+          //                                             ? 'opacity-50 cursor-not-allowed'
+          //                                             : 'cursor-pointer'
+          //                                         }`}
+          //                                 >
+          //                                     <svg
+          //                                         width="14"
+          //                                         height="20"
+          //                                         viewBox="0 0 14 20"
+          //                                         fill="none"
+          //                                         xmlns="http://www.w3.org/2000/svg"
+          //                                     >
+          //                                         <path
+          //                                             d="M7 19V16.5455M7 16.5455C5.4087 16.5455 3.88258 15.8558 2.75736 14.6283C1.63214 13.4008 1 11.736 1 10M7 16.5455C8.5913 16.5455 10.1174 15.8558 11.2426 14.6283C12.3679 13.4008 13 11.736 13 10M7 14.0909C4.9375 14.0909 3.25 12.3138 3.25 10.1407V4.95018C3.25 2.77709 4.9375 1 7 1C9.0625 1 10.75 2.77709 10.75 4.95018V10.1407C10.75 12.3138 9.0625 14.0909 7 14.0909Z"
+          //                                             stroke={isListening ? '#ef4444' : 'black'}
+          //                                             strokeOpacity={isListening ? '0.8' : '0.3'}
+          //                                             strokeWidth="1.5"
+          //                                             strokeLinecap="round"
+          //                                             strokeLinejoin="round"
+          //                                         />
+          //                                     </svg>
+          //                                 </button>
+
+          //                                 {/* Send Button */}
+          //                                 <button onClick={handleSubmit} className="hover:scale-110 transition-transform">
+          //                                     <div className="w-6 h-6 bg-white rounded-sm opacity-90 flex items-center justify-center cursor-pointer">
+          //                                         <img src="/abhinay/HomePageImages/cube.png" alt="send" />
+          //                                     </div>
+          //                                 </button>
+          //                             </div>
+
+          //                         </div>
+          //                     </div>
+          <FloatingChatbot />
+        )}  
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="bg-[#4A53FA] rounded-2xl flex flex-col md:flex-row items-center justify-between p-8 md:p-12 mb-8">
           {/* Left Content */}
@@ -470,7 +550,7 @@ useEffect(() => {
         <h1 className="text-lg mt-2 text-center text-[#615E63]">
           Explore franchise opportunities across thriving cities !
         </h1>
-        {/* <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 lg:gap-20 mt-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 lg:gap-20 mt-6">
           {data.cities.map((city) => (
             <div key={city.id} className="text-center">
               <div className="w-full aspect-square h-32 rounded-[20px] overflow-hidden">
@@ -486,9 +566,10 @@ useEffect(() => {
               </p>
             </div>
           ))}
-        </div> */}
-        {true && <Cities daata={citiesData} />}
-
+        </div>
+<p className="text-blue-600 text-sm mt-6 cursor-pointer text-center">
+        View More →
+      </p>
         <div className="w-full flex justify-end">
           <button
             className="border p-2 rounded-xl text-sm border-2 border-gray-300 font-semibold mt-16 hover:underline"
@@ -547,6 +628,31 @@ useEffect(() => {
           3
         </NavLink>
       </div> */}
+      {!showChatbot && (
+        <button
+          onClick={() => setShowChatbot(true)}
+          aria-label="Open chat"
+          className="fixed left-4 bottom-6 md:left-6 md:bottom-8 z-50 pointer-events-auto bg- rounded-full p-2 hover:shadow-2xl transition transform hover:scale-105"
+        >
+          <img
+            src="/abhinay/HomePageImages/kube.png"
+            alt="Open chat"
+            className="w-12 h-12 rounded-full border-5 border-[#9876b3] p-1 object-cover"
+          />
+        </button>
+      )}
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+

@@ -8,6 +8,7 @@ import Footernew from "@/abhinay-s/components/Footernew";
 import FloatingChatbot from "./FloatingChatbot";
 import { useChatbot } from "./ChatbotContext";
 import { getHomeMetrics } from "@/abhinay-s/lib/api";
+import Chatlisting from "./components/navbar/OfferingComponents/Franchise/Chatlisting";
 const GlowBackground = ({ brightness = 0.4 }) => {
   const containerStyle = {
     position: 'relative',
@@ -524,7 +525,8 @@ const NewHomePage = () => {
 
             {/* Search Interface */}
 
-            <NewChatbot />
+            {/* <NewChatbot /> */}
+             <Chatlisting />
           </div>
         </div>
         {/* <div><p className='text-gray-600 text-center mb-6'>Structure of Business</p></div> */}
@@ -619,6 +621,7 @@ const NewHomePage = () => {
           //                     </div>
           <FloatingChatbot />
         )}
+        
         <div className="max-w-6xl bg-red-100 mx-auto overflow-x-hidden">
           <div className="w-full flex flex-col items-center py-16 px-6 md:px-20 text-center bg-white">
             {/* Title */}

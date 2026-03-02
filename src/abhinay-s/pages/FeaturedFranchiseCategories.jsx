@@ -6,6 +6,7 @@ const FeaturedFranchiseCategories = ({
   data = [],
   showViewMore = true,
 }) => {
+    console.log(data)
   if (!Array.isArray(data) || data.length === 0) return null;
     // console.log(data)
   return (
@@ -29,7 +30,7 @@ const FeaturedFranchiseCategories = ({
 
             <div className="text-center p-2">
               <p className="font-medium text-gray-800">
-                {item.brand}
+                {item.name}
               </p>
             </div>
           </div>

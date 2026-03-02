@@ -12,18 +12,18 @@ const NewChatbot = () => {
 
   // input based routing - comprehensive intent map
   const intentMatchers = useMemo(() => ([
-    {
-      path: '/government-scheme-listing',
-      keys: ['govt', 'government', 'scheme', 'schemes', 'subsidies', 'support programs', 'govt scheme finder']
-    },
-    {
-      path: '/startups-zone-opportunities',
-      keys: ['startup', 'startups zone', 'startups', 'funding', 'recognition', 'unicorns', 'business models']
-    },
-    {
-      path: '/startups-zone-investorhub',
-      keys: ['Investor page', 'Investors', 'Investment Themes', 'investor']
-    },
+    // {
+    //   path: '/government-scheme-listing',
+    //   keys: ['govt', 'government', 'scheme', 'schemes', 'subsidies', 'support programs', 'govt scheme finder']
+    // },
+    // {
+    //   path: '/startups-zone-opportunities',
+    //   keys: ['startup', 'startups zone', 'startups', 'funding', 'recognition', 'unicorns', 'business models']
+    // },
+    // {
+    //   path: '/startups-zone-investorhub',
+    //   keys: ['Investor page', 'Investors', 'Investment Themes', 'investor']
+    // },
 
     // Franchise – Food Category (check first for specific match)
     {
@@ -65,92 +65,7 @@ const NewChatbot = () => {
         'franchise cost'
       ]
     },
-    // Individual Products
-    {
-      path: '/individual-product',
-      keys: ['cricket bat','cricket', 'mrf bat','mrf cricket bat']
-    },
-
-    // B2B Products (fallback to coming-soon until route exists)
-    {
-      path: '/product-category',
-      keys: ['sports', 'equipment', 'suppliers', 'supplier']
-    },
-
-    // Software Products (fallback)
-    {
-      path: '/crm',
-      keys: ['software products', 'crm', 'crm softwares']
-    },
-    {
-      path: '/webdev',
-      keys: ['software services','web development', 'web dev']
-    },
-    {
-      path: '/ai',
-      keys: ['ai products', 'ai tools', 'ai software']
-    },
-
-    // Market Research (fallback)
-    {
-      path: '/market-research-listing',
-      keys: ['market research', 'economy', 'growth']
-    },
-    // Investment (fallback)
-
-    // Experts & Consulting (fallback)
-    {
-      path: '/expert-listing',
-      keys: ['expert', 'consultant', 'consult', 'consulting', 'advice', 'advisor', 'mentorship', 'specialist', 'professional']
-    },
-
-    // Project Reports
-    {
-      path: '/project-reports-listing',
-      keys: ['project', 'reports', 'report']
-    },
-
-    // Data Providers
-    {
-      path: '/data-listing',
-      keys: ['data', 'provider','Data provider']
-    },
-
-    // Company Info
-    {
-      path: '/cosco-company-profile',
-      keys: ['cosco', 'company profile','cosco company profile', 'company research', 'cosco research']
-    },
-
-    // Golf Industry Profile
-    {
-      path: '/golf-ball-profile',
-      keys: ['golf ball', 'golf industry', 'golf ball profile', 'industry research']
-    },
-
-    // Business Directory
-    {
-      path: '/business-solutions/home',
-      keys: ['business directory', 'business solutions']
-    },
-
-    // Associations
-    {
-      path: '/association-listing',
-      keys: ['association', 'business association']
-    },
-
-    // Surveys
-    {
-      path: '/survey',
-      keys: ['survey', 'poll', 'questionnaire']
-    },
-
-    // Generic Coming Soon
-    {
-      path: '/coming-soon',
-      keys: ['coming soon', 'beta', 'preview']
-    },
+    
   ]), []);
 
   const resolveRoute = useCallback((text) => {

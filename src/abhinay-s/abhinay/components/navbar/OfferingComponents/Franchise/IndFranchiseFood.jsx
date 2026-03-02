@@ -21,8 +21,13 @@ import {
 import { IKImage } from "imagekitio-react";
 import { fetchFranchiseDetails } from "../../../../../lib/api";
 import FranchiseTabs from "./FranchiseTabs";
-const IndFranchiseFood = () => {
+import { useNavigate, useParams } from "react-router-dom";
 
+
+
+const IndFranchiseFood = () => {
+  const { id: slug } = useParams();
+    const navigate = useNavigate();
   // Franchise Details
 //   https://ik.imagekit.io/lemiciiq/LeMiCi/menu.png
   const franchiseData = {
@@ -169,39 +174,38 @@ const IndFranchiseFood = () => {
   
 
   const [franchiseDataBackend, setFranchiseDataBackend] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchFranchiseDetails()
-      .then((res) => {
-        setFranchiseDataBackend(res);   // store data in variable (state)
-      console.log('a', res);
-
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, []);
-const rating = franchiseDataBackend?.data?.basicInfo?.rating?.average || 0;
+    if (slug) {
+      setLoading(true);
+      fetchFranchiseDetails(slug)
+        .then((res) => {
+          setFranchiseDataBackend(res);   // store data in variable (state)
+        console.log('a', res);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error(err);
+          setLoading(false);
+        });
+    }
+  }, [slug]);
+const rating = franchiseDataBackend?.data?.basicInfo?.rating || 0;
 
 const fullStars = Math.floor(rating);      // 4
 const hasHalfStar = rating % 1 !== 0;      // true
 const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-const investment =
-  franchiseDataBackend?.data?.franchiseOverview?.initialInvestment;
+const investment = franchiseDataBackend?.data?.investment_details?.initial_investment;
 
 const investmentValue = investment
-  ? `₹${investment.min / 100000}–${investment.max / 100000} Lakhs`
+  ? `₹${investment.min}–${investment.max} ${investment.unit}`
   : "-";
-const turnover =
-  franchiseDataBackend?.data?.franchiseOverview?.avgTurnoverPerMonth;
-const turnoverValue = turnover
-  ? `₹${turnover.min / 100000}–${turnover.max / 100000} Lakhs`
-  : "-";
-  const franchiseFees =
-  franchiseDataBackend?.data?.franchiseOverview?.franchiseFees;
+const franchiseFees = franchiseDataBackend?.data?.investment_details?.franchise_fee;
 const franchiseFeesValue = franchiseFees
-  ? `₹${franchiseFees.min / 100000}–${franchiseFees.max / 100000} Lakhs`
+  ? `₹${franchiseFees.min}–${franchiseFees.max} ${franchiseFees.unit}`
   : "-";
+const spaceRequirement = franchiseDataBackend?.data?.franchising_overview?.space_requirement;
 
 const info = [
     {
@@ -211,62 +215,181 @@ const info = [
     },
     {
       label: "Unit as of 2025",
-      value: `${franchiseDataBackend?.data?.franchiseOverview?.numberOfUnits?.total}+ Outlets`,
+      value: franchiseDataBackend?.data?.franchising_overview?.number_of_units 
+        ? `${franchiseDataBackend.data.franchising_overview.number_of_units}+ Outlets`
+        : `${franchiseDataBackend?.data?.basicInfo?.no_of_outlets || 0}+ Outlets`,
       icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/2a2.png" />,
     },
     {
       label: "Space requirement",
-      value: `${franchiseDataBackend?.data?.franchiseOverview?.spaceRequirement?.min}-${franchiseDataBackend?.data?.franchiseOverview?.spaceRequirement?.max} sq. ft.`,
+      value: spaceRequirement 
+        ? `${spaceRequirement.min}-${spaceRequirement.max} ${spaceRequirement.unit}`
+        : "-",
       icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/3b3.png" />,
     },
     {
       label: "Industry",
-      value: franchiseDataBackend?.data?.basicInfo?.category,
+      value: franchiseDataBackend?.data?.basicInfo?.category || franchiseDataBackend?.data?.basicInfo?.industry?.name,
       icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/4c4.png" />,
     },
     {
-      label: "Parent company",
-      value: franchiseDataBackend?.data?.companyInfo?.parentCompany,
+      label: "Headquarters",
+      value: franchiseDataBackend?.data?.franchising_overview?.headquarters || franchiseDataBackend?.data?.basicInfo?.location,
       icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/5d5.png" />,
     },
     {
-      label: "Business type",
-      value: franchiseDataBackend?.data?.companyInfo?.businessType,
+      label: "Sector",
+      value: franchiseDataBackend?.data?.operation?.sector || "-",
       icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/6d6.png" />,
     },
     {
-      label: "Leadership",
-      value: franchiseDataBackend?.data?.companyInfo?.leadership,
+      label: "Property Type",
+      value: franchiseDataBackend?.data?.operation?.required_property || "-",
       icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/7e7.png" />,
     },
     {
-      label: "E-mail",
-      value: franchiseDataBackend?.data?.companyInfo?.email,
+      label: "Staff Required",
+      value: franchiseDataBackend?.data?.operation?.staff_required 
+        ? `${franchiseDataBackend.data.operation.staff_required.min}-${franchiseDataBackend.data.operation.staff_required.max}`
+        : "-",
       icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/8f8.png" />,
     },
     {
-  label: "Avg. turnover per/month",
-  value: turnoverValue,
-  icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/9g9.png" />,
-},
+      label: "Franchise Fees",
+      value: franchiseFeesValue,
+      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/10h.png" />,
+    },
     {
-  label: "Franchise Fees",
-  value: franchiseFeesValue,
-  icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/10h.png" />,
-},
-    {
-      label: "Payback Period",
-      value: `${franchiseDataBackend?.data?.franchiseOverview?.paybackPeriod?.min}–${franchiseDataBackend?.data?.franchiseOverview?.paybackPeriod?.max} months`,
+      label: "Home/Mobile Based",
+      value: franchiseDataBackend?.data?.operation?.can_be_run_from_home_or_mobile || "-",
       icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/11i.png" />,
     },
-    { label: "Royalties", value: franchiseDataBackend?.data?.franchiseOverview?.royalties?.percentage, icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/12j.png" /> },
+    {
+      label: "Absentee Ownership",
+      value: franchiseDataBackend?.data?.operation?.is_absentee_ownership_allowed || "-",
+      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/12j.png" />,
+    },
   ];
+
+  // Skeleton Loading Component
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto p-4 animate-pulse">
+        {/* Back Button Skeleton */}
+        <div className="ml-2 mb-4">
+          <div className="w-5 h-5 bg-gray-200 rounded-full"></div>
+        </div>
+
+        {/* Top Card Skeleton */}
+        <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-200 relative">
+          <div className="flex flex-col md:flex-row items-start justify-between gap-6 w-full">
+            <div className="flex flex-col items-start space-x-4 flex-1">
+              <div className="flex gap-4">
+                {/* Logo Skeleton */}
+                <div className="w-16 h-16 bg-gray-200 rounded-full"></div>
+                <div className="flex-1">
+                  {/* Title Skeleton */}
+                  <div className="h-8 bg-gray-200 rounded w-48 mb-2"></div>
+                  {/* Badges Skeleton */}
+                  <div className="flex gap-2">
+                    <div className="h-5 w-16 bg-gray-200 rounded"></div>
+                    <div className="h-5 w-24 bg-gray-200 rounded"></div>
+                    <div className="h-5 w-20 bg-gray-200 rounded"></div>
+                  </div>
+                </div>
+              </div>
+              {/* Description Skeleton */}
+              <div className="space-y-2 mt-4 w-full">
+                <div className="h-4 bg-gray-200 rounded w-full"></div>
+                <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+              </div>
+              {/* Buttons Skeleton */}
+              <div className="flex gap-3 mt-4">
+                <div className="h-12 w-32 bg-gray-200 rounded-full"></div>
+                <div className="h-12 w-32 bg-gray-200 rounded-full"></div>
+              </div>
+              {/* Rating Skeleton */}
+              <div className="flex gap-1 mt-3">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="h-5 w-5 bg-gray-200 rounded"></div>
+                ))}
+              </div>
+            </div>
+          </div>
+          {/* Social Icons Skeleton */}
+          <div className="absolute bottom-6 right-6 flex gap-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-5 w-5 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+        </div>
+
+        {/* Franchising Overview Skeleton */}
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="h-8 bg-gray-200 rounded w-64 mx-auto mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-96 mx-auto mb-6"></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {[...Array(9)].map((_, idx) => (
+              <div key={idx} className="px-7 py-4 bg-gray-50 rounded-xl border border-gray-200">
+                <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+                <div className="h-6 bg-gray-200 rounded w-32"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Tabs Skeleton */}
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex gap-4 mb-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-10 w-32 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+          <div className="space-y-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-20 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+        </div>
+
+        {/* Featured Categories Skeleton */}
+        <div className="w-full px-6 py-10">
+          <div className="h-7 bg-gray-200 rounded w-80 mb-6"></div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {[...Array(8)].map((_, i) => (
+              <div key={i}>
+                <div className="h-48 bg-gray-200 rounded-2xl"></div>
+                <div className="h-4 bg-gray-200 rounded w-24 mx-auto mt-2"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Recommended Franchise Skeleton */}
+        <div className="w-full px-6 py-10">
+          <div className="h-7 bg-gray-200 rounded w-72 mb-6"></div>
+          <div className="grid grid-cols-4 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-72 bg-gray-200 rounded-xl"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto p-4">
        {/* Top Card */}
       <div className="ml-2">
           <button 
-            onClick={() => window.history.back()} 
+            onClick={() =>{
+                if(window.history.length > 1) navigate(-1);
+                else navigate("/franchise");
+            }
+                
+                } 
             className="flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 transition-all cursor-pointer"
           >
             <IKImage path="/FranchiseHomePage/DetailsPageImages/backer.png" alt="" />
@@ -276,7 +399,7 @@ const info = [
       <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-200 relative mt-2">
         {/* Action Icons - Top Right */}
         <div className="absolute top-6 right-6 flex items-center space-x-3">
-          <IKImage
+          {/* <IKImage
             path="FranchiseHomePage/d2.png"
             alt="Share"
             className="w-4 h-4 cursor-pointer hover:scale-110 transition-transform"
@@ -290,7 +413,7 @@ const info = [
             path="FranchiseHomePage/d6.png"
             alt="Menu"
             className="w-4 h-4 cursor-pointer hover:scale-110 transition-transform"
-          />
+          /> */}
         </div>
 
         <div className="flex flex-col md:flex-row items-start justify-between gap-6 w-full">
@@ -299,7 +422,7 @@ const info = [
             <div className="flex">
               <IKImage
                 path={franchiseDataBackend?.data?.basicInfo?.logo.url}
-                alt={`${franchiseData.name} Logo`}
+               
                 className="w-16 h-16 rounded-full object-cover"
               />
               <div className="">
@@ -310,9 +433,11 @@ const info = [
                   )}
                 </div>
                 <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500 mt-1">
-                  <span className="bg-gray-100 px-2 py-0.5 rounded">
-                    {franchiseDataBackend?.data?.basicInfo?.since}
-                  </span>
+                  {franchiseData.year && (
+                    <span className="bg-gray-100 px-2 py-0.5 rounded">
+                      {franchiseData.year}
+                    </span>
+                  )}
                   {franchiseData.badges.map((badge, index) => (
                     <span key={index} className="bg-gray-100 px-2 py-0.5 rounded">
                       {badge}
@@ -325,21 +450,20 @@ const info = [
               <p className="text-gray-700 mt-3 text-sm md:text-base max-w-2xl">
                 {franchiseDataBackend?.data?.basicInfo?.description}
               </p>
-              <div className="flex flex-wrap space-x-3 mt-4">
+              {/* <div className="flex flex-wrap space-x-3 mt-4">
                 <button className="bg-[#4A53FA] text-white px-12 py-3 rounded-[25px] hover:bg-indigo-700 w-full sm:w-auto">
                   Follow
                 </button>
                 <button className="bg-gray-100 text-gray-800 px-12 py-3 rounded-[25px] font-medium hover:bg-gray-200 w-full sm:w-auto">
                   Enquiry
                 </button>
-              </div>
+              </div> */}
               <div className="flex items-center mt-3 space-x-1 text-yellow-500">
-  {/* Full stars */}
-  {[...Array(fullStars)].map((_, i) => (
+ 
+  {/* {[...Array(fullStars)].map((_, i) => (
     <span key={`full-${i}`}>★</span>
   ))}
 
-  {/* Half star */}
   {hasHalfStar && (
     <span className="relative inline-block">
       <span className="text-gray-300">★</span>
@@ -349,11 +473,10 @@ const info = [
     </span>
   )}
 
-  {/* Empty stars */}
   {[...Array(emptyStars)].map((_, i) => (
     <span key={`empty-${i}`} className="text-gray-300">★</span>
   ))}
-                <span className="text-gray-600 text-sm ml-2">{franchiseDataBackend?.data?.basicInfo?.rating?.count || franchiseData.likes} likes</span>
+                <span className="text-gray-600 text-sm ml-2">{franchiseData.likes} likes</span> */}
 
 </div>
 
@@ -363,15 +486,35 @@ const info = [
         </div>
 
         {/* Social Media Icons - Bottom Right */}
-        <div className="absolute bottom-6 right-6">
+        {/* <div className="absolute bottom-6 right-6">
           <div className="flex items-center space-x-3 text-xl text-gray-600">
-            <IKImage path={franchiseData.socialMedia.youtube } alt="" className="w-5 h-5" />
-            <IKImage path={franchiseData.socialMedia.pinterest} alt="" className="w-5 h-5" />
-            <IKImage path={franchiseData.socialMedia.instagram } alt="" className="w-5 h-5" />
-            <IKImage path={franchiseData.socialMedia.twitter } alt="" className="w-5 h-5" />
-            <IKImage path={franchiseData.socialMedia.facebook } alt="" className="w-5 h-5" />
+            {franchiseDataBackend?.data?.social_media?.youtube && (
+              <a href={franchiseDataBackend.data.social_media.youtube} target="_blank" rel="noopener noreferrer">
+                <IKImage path={franchiseData.socialMedia.youtube} alt="YouTube" className="w-5 h-5" />
+              </a>
+            )}
+            {franchiseDataBackend?.data?.social_media?.instagram && (
+              <a href={franchiseDataBackend.data.social_media.instagram} target="_blank" rel="noopener noreferrer">
+                <IKImage path={franchiseData.socialMedia.instagram} alt="Instagram" className="w-5 h-5" />
+              </a>
+            )}
+            {franchiseDataBackend?.data?.social_media?.twitter && (
+              <a href={franchiseDataBackend.data.social_media.twitter} target="_blank" rel="noopener noreferrer">
+                <IKImage path={franchiseData.socialMedia.twitter} alt="Twitter" className="w-5 h-5" />
+              </a>
+            )}
+            {franchiseDataBackend?.data?.social_media?.facebook && (
+              <a href={franchiseDataBackend.data.social_media.facebook} target="_blank" rel="noopener noreferrer">
+                <IKImage path={franchiseData.socialMedia.facebook} alt="Facebook" className="w-5 h-5" />
+              </a>
+            )}
+            {franchiseDataBackend?.data?.social_media?.linkedin && (
+              <a href={franchiseDataBackend.data.social_media.linkedin} target="_blank" rel="noopener noreferrer">
+                <IKImage path={franchiseData.socialMedia.pinterest} alt="LinkedIn" className="w-5 h-5" />
+              </a>
+            )}
           </div>
-        </div>
+        </div> */}
 
         {/* Floating Profile Image */}
         {/* <div
@@ -475,7 +618,7 @@ const info = [
         </div>
       </div>
 
-      <FranchiseTabs />
+      <FranchiseTabs franchiseData={franchiseDataBackend} />
       {/*
        */}
       
@@ -490,7 +633,7 @@ const info = [
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {(
-          franchiseDataBackend?.data?.relatedSections?.featuredCategories?.categories || []
+          franchiseDataBackend?.data?.sections?.find(s => s.type === "featured_categories")?.data || []
         ).map((item, index) => (
           <div key={index}>
             <div className="rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition bg-white">
@@ -524,14 +667,14 @@ const info = [
       </h3>
       <ul className="space-y-3">
         {(
-          franchiseDataBackend?.data?.relatedSections?.categoryQuestions?.questions || []
+          franchiseDataBackend?.data?.sections?.find(s => s.type === "category_questions")?.data?.questions || []
         ).map((q, i) => (
           <li key={i}>
             <a
               href="#"
               className="text-[#268BFF] hover:underline text-base leading-relaxed block"
             >
-              {q.question || q}
+              {q}
             </a>
           </li>
         ))}
@@ -547,7 +690,7 @@ const info = [
     {/* Left side: Franchise cards */}
     <div className="md:col-span-3 overflow-x-auto flex gap-4 pb-2">
       {(
-        franchiseDataBackend?.data?.relatedSections?.recommendedFranchises?.items || []
+        franchiseDataBackend?.data?.sections?.find(s => s.type === "recommended_franchises")?.data?.items || []
       ).map((item, index) => (
         <div
           key={index}
@@ -562,7 +705,7 @@ const info = [
             <h3 className="font-semibold text-white text-lg">
               {item.brand || item.name}
             </h3>
-            <p className="text-sm text-gray-200 mt-1">{item.category}</p>
+            <p className="text-sm text-gray-200 mt-1">{item.industry || item.category}</p>
             <button className="mt-3 bg-white w-full border-2 border-white px-4 py-1 rounded-full hover:bg-white hover:text-black transition">
               Explore
             </button>
@@ -575,9 +718,7 @@ const info = [
     <div className="border border-[#EDEDED] rounded-xl p-6">
       <h3 className="text-lg font-bold mb-3">Key Market insights</h3>
       <div className="space-y-3">
-        {(
-          franchiseDataBackend?.data?.relatedSections?.keyMarketInsights?.insights || []
-        ).map((insight, index) => (
+        {Object.entries(franchiseDataBackend?.data?.key_market_insights || {}).map(([key, insight], index) => (
           <div key={index}>
             <p className="text-[#268BFF] font-medium">
               {insight.title}

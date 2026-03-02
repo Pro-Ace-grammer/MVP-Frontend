@@ -36,30 +36,36 @@ import ScrollToTop from "./abhinay-s/components/ScrollToTop";
 // import Header from "./abhinay-s/components/Header";
 import UserRoutes from "./routes/UserRoutes";
 import SouravRoutes from "./sourav/SouravRoutes";
-
+import ImageKitProvider from "./ImageKitProvider";
 function App({ keycloak }) {
   return (
-    <ChatbotProvider>
-      <Router>
-        <ScrollToTop />
-        {/* <Header style={{ position: "sticky", top: 0, zIndex: 1000 }} /> */}
-        <Routes>
-          {/* Hari Pages */}
-  
-          {/* Sourav Pages */}
-  
-          {/* Abhinay Pages */}
-          {/* {AbhinayRoutes()} */}
-          {UserRoutes(keycloak)}
-          <Route path="/" element={<AbhinayLayout />}>
-            {HariRoutes()}
-            {AbhinayRoutes()}
-            {SouravRoutes()}
-          </Route>
-        </Routes>
-      </Router>
-    </ChatbotProvider>
+    <ImageKitProvider>
+      <ChatbotProvider>
+        <Router>
+          <ScrollToTop />
+
+          <Routes>
+
+            {/* Auth / User Routes */}
+            {UserRoutes(keycloak)}
+
+            {/* Layout Route */}
+            <Route
+              path="/"
+              element={<AbhinayLayout keycloak={keycloak} />}
+            >
+              {HariRoutes()}
+              {AbhinayRoutes()}
+              {SouravRoutes()}
+            </Route>
+
+          </Routes>
+
+        </Router>
+      </ChatbotProvider>
+    </ImageKitProvider>
   );
 }
+
 
 export default App;

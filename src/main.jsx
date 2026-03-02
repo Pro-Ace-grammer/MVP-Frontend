@@ -1,22 +1,23 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./index.css";
 import App from "./App.jsx";
-import ImageKitProvider from "./ImageKitProvider.jsx";
+import "./index.css";
 import keycloak from "./keycloak";
+
+const root = createRoot(document.getElementById("root"));
 
 keycloak
   .init({
-    onLoad: "check-sso",   // checks login silently
-    pkceMethod: "S256",
+    onLoad: "check-sso",      // ✅ DO NOT force login
     checkLoginIframe: false,
+    pkceMethod: "S256",
   })
-  .then(() => {
-    createRoot(document.getElementById("root")).render(
+  .then((authenticated) => {
+    console.log("Keycloak initialized:", authenticated);
+
+    root.render(
       <StrictMode>
-        <ImageKitProvider>
-          <App keycloak={keycloak} />
-        </ImageKitProvider>
+        <App keycloak={keycloak} />
       </StrictMode>
     );
   })

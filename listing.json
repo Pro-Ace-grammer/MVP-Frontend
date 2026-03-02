@@ -16,9 +16,11 @@
         "type": "franchise_listing",
         "enabled": true,
         "data": [
+
+           
           {
             "id": "fb-001",
-            "brand": "Starbucks",
+            "brand": "Starbcks",
             "category": "Food & Beverage",
             "description": "International coffeehouse chain serving premium coffee and snacks.",
             "year_of_establishment": 1971,

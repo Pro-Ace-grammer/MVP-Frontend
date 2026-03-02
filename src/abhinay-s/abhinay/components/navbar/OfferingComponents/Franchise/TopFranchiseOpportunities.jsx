@@ -1,8 +1,15 @@
 import React from "react";
 import { IKImage } from "imagekitio-react";
+import { useNavigate } from "react-router-dom";
 
 const TopFranchiseOpportunities = ({ data }) => {
+  const navigate = useNavigate();
+  
   if (!data?.industries?.length) return null;
+
+  const handleIndustryClick = (industryName) => {
+    navigate(`/franchise/listingpage?industry=${encodeURIComponent(industryName)}`);
+  };
 
   return (
     <div className="w-full">
@@ -21,6 +28,7 @@ const TopFranchiseOpportunities = ({ data }) => {
           {data.industries.map((item) => (
             <div
               key={item.id}
+              onClick={() => handleIndustryClick(item.slug)}
               className="bg-[#E6EDFF] rounded-2xl h-28 flex flex-col items-center justify-center gap-2 cursor-pointer hover:scale-105 transition-transform duration-200 ease-out"
             >
               <IKImage

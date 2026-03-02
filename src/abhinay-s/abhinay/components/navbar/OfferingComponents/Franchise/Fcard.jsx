@@ -118,7 +118,9 @@ export default function Fcard({
         </div>
 
         {/* Rating */}
-        <div className="h-full mt-6 ml-auto flex items-start gap-1 text-sm font-medium">
+        {
+            rating > 0 && (
+                <div className="h-full mt-6 ml-auto flex items-start gap-1 text-sm font-medium">
           <IKImage 
             path="FranchiseHomePage/star-rating.png" 
             alt="rating"
@@ -127,6 +129,9 @@ export default function Fcard({
           />
           <span className="text-gray-700">{rating}</span>
         </div>
+
+            )
+        }
       </div>
 
       {/* Description */}
@@ -142,7 +147,7 @@ export default function Fcard({
           {tags.map((tag, index) => (
             <span
               key={index}
-              className="px-6 py-3 bg-white rounded-full text-xs font-medium text-gray-700 shadow-sm"
+                    className="px-6 py-3 bg-white rounded-full text-xs font-medium text-gray-700 shadow-sm inline-flex items-center justify-center"
             >
               {tag}
             </span>
@@ -189,7 +194,7 @@ export default function Fcard({
       {/* Bottom Actions */}
       <div 
         onClick={(e) => e.stopPropagation()}
-      className="mt-6 mb-3 bg-white/30 backdrop-blur-sm rounded-2xl px-4 py-3 flex items-center justify-between border border-white/50 relative">
+      className="mt-6 mb-3 bg-white/30 backdrop-blur-sm rounded-2xl px-4 py-1 flex items-center justify-between border border-white/50 relative">
         <div className="relative">
           <button className="p-2" onClick={handleRatingClick}>
             <IKImage path="FranchiseHomePage/d1.png" className="w-5 h-5" alt="action" loading="lazy" />
@@ -238,8 +243,8 @@ export default function Fcard({
         <button className="p-2" onClick={handleCopyUrl}>
           <IKImage path="FranchiseHomePage/d3.png" className="w-5 h-5" alt="action" loading="lazy" />
         </button>
-        <button className="bg-blue-600 p-2 rounded-full">
-          <IKImage path="FranchiseHomePage/d4.png" className="w-5 h-5" alt="action" loading="lazy" />
+        <button className="b-blue-600 p-1 rounded-full">
+          <IKImage path="FranchiseHomePage/d4.png" className="w-9 h-9" alt="action" loading="lazy" />
         </button>
       </div>
     </div>
@@ -260,7 +265,7 @@ export function FcardGrid({
           <Fcard
             key={idx}
             {...item}
-            onClick={() => navigate(item.title == "GolfEdge Academy" ? '/newFranchise2' : '/franchise/details/:id')}
+            onClick={() => navigate(item.title == "GolfEdge Academy" ? '/newFranchise2' : `/franchise/details/${item.slug || 'chai-point'}`)}
           />
         ))}
       </div>

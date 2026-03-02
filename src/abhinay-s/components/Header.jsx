@@ -11,6 +11,7 @@ const navItems = [
 ];
 
 export default function Header(props) {
+    const { keycloak, style } = props;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [atTop, setAtTop] = useState(true);
   const location = useLocation();
@@ -29,7 +30,7 @@ export default function Header(props) {
   return (
     <header
       className={`sticky top-0 z-[1000] ${props.className || ""}`}
-      style={props.style}
+      style={style}
     >
       {/* Floating container */}
       <div className="mx-auto max-w-4xl px-3 sm:px-4">
@@ -88,12 +89,17 @@ export default function Header(props) {
 
           {/* Right: CTA + mobile button */}
           <div className="pr-3 sm:pr-4 py-2 flex items-center gap-2">
-            <Link
-              to="/signup"
+            {keycloak && !keycloak.authenticated ? (
+              <button
+                className="hidden sm:inline-flex items-center rounded-xl bg-[#6D3E93] text-white text-sm font-semibold px-4 py-2 shadow-sm hover:opacity-90 transition"
+              onClick={() => keycloak.login()}>Get Started</button>
+            ) : (
+              keycloak && <button
               className="hidden sm:inline-flex items-center rounded-xl bg-[#6D3E93] text-white text-sm font-semibold px-4 py-2 shadow-sm hover:opacity-90 transition"
-            >
-              Get Started
-            </Link>
+              onClick={() => keycloak.logout()}>Logout</button>
+            )}
+
+
 
             <button
               onClick={() => setIsMobileMenuOpen((v) => !v)}

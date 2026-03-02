@@ -68,28 +68,32 @@ const Fcard = ({
               className="w-14 h-14 rounded-lg object-cover"
               loading="lazy"
             />
+<div className="flex flex-col">
+  <h2 className="font-semibold text-lg text-black">
+    {title}
+    {verified && (
+      <MdVerified className="inline-block text-blue-500 text-base ml-1 align-text-bottom" />
+    )}
+  </h2>
 
-        <div className="flex flex-col">
-          <div className="flex items-center gap-1">
-            <h2 className="font-semibold text-lg text-black">{title}</h2>
-            {verified && <MdVerified className="text-blue-500 text-lg" />}
-          </div>
-
-          <p className="text-sm text-gray-700">
-            {since && `Since ${since}`} {location}
-          </p>
-        </div>
+  <p className="text-sm text-gray-700">
+    {since && `Since ${since}`} {location}
+  </p>
+</div>
 
         {/* Rating */}
-        <div className="h-full mt-6 ml-auto flex items-start gap-1 text-sm font-medium">
-          <IKImage 
-            path="FranchiseHomePage/star-rating.png" 
-            alt="rating"
-            className="w-4 h-4"
-            loading="lazy"
-          />
-          <span className="text-gray-700">{rating}</span>
-        </div>
+        {Number(rating) > 0 && (
+  <div className="h-full mt-6 ml-auto flex items-start gap-1 text-sm font-medium">
+    <IKImage 
+      path="FranchiseHomePage/star-rating.png" 
+      alt="rating"
+      className="w-4 h-4"
+      loading="lazy"
+    />
+    <span className="text-gray-700">{rating}</span>
+  </div>
+)}
+
       </div>
 
       {/* Description */}
@@ -105,7 +109,7 @@ const Fcard = ({
           {tags.map((tag, index) => (
             <span
               key={index}
-              className="px-6 py-3 bg-white rounded-full text-xs font-medium text-gray-700 shadow-sm"
+                  className="px-6 py-3 bg-white rounded-full text-xs font-medium text-gray-700 shadow-sm inline-flex items-center justify-center"
             >
               {tag}
             </span>
@@ -163,7 +167,7 @@ const Fcard = ({
           <IKImage path="FranchiseHomePage/d3.png" className="w-5 h-5" alt="action" loading="lazy" />
         </button>
         <button className="cursor-pointer bg-blue-600 p-2 rounded-full">
-          <IKImage path="FranchiseHomePage/d4.png" className="w-5 h-5" alt="action" loading="lazy" />
+          <IKImage path="FranchiseHomePage/d4.png" className="w-5 h-7" alt="action" loading="lazy" />
         </button>
       </div>
     </div>
@@ -188,7 +192,7 @@ const FcardGrid = ({
               navigate(
                 item.title === "GolfEdge Academy"
                   ? "/newFranchise2"
-                  : "/franchise/details/:id"
+                  : `/franchise/details/${item.slug || 'chai-point'}`
               )
             }
           />
@@ -197,6 +201,7 @@ const FcardGrid = ({
     </div>
   );
 };
+
 const formatRange = (min, max, unit) => {
   if (!min || !max) return "";
   return `${min}-${max} ${unit}`;
@@ -264,9 +269,11 @@ const [franchiseItems, setFranchiseItems] = useState([]);
 const [featuredCategories, setFeaturedCategories] = useState([]);
 const [categoryQuestions, setCategoryQuestions] = useState([]);
 const [recommendedFranchises, setRecommendedFranchises] = useState([]);
+const [marketInsights, setMarketInsights] = useState(null);
 const [selectedCategories, setSelectedCategories] = useState([]);
 const [showFilterModal, setShowFilterModal] = useState(false);
 const [activeFilterType, setActiveFilterType] = useState("All");
+
 // Initialize selected categories from URL params on mount
 useEffect(() => {
   const catParam = searchParams.get('category');
@@ -274,23 +281,32 @@ useEffect(() => {
     const categories = catParam.split(',').filter(Boolean);
     setSelectedCategories(categories);
   }
-}, []);
+}, []); // Only run on mount
 
 // Update URL when selected categories change
 useEffect(() => {
-  if (selectedCategories.length > 0) {
-    setSearchParams({ category: selectedCategories.join(',') });
-  } else {
-    setSearchParams({});
-  }
+  setSearchParams((prev) => {
+    const newParams = new URLSearchParams(prev);
+    
+    // Update or remove category parameter
+    if (selectedCategories.length > 0) {
+      newParams.set('category', selectedCategories.join(','));
+    } else {
+      newParams.delete('category');
+    }
+    
+    return newParams;
+  }, { replace: true });
 }, [selectedCategories, setSearchParams]);
 
 
 useEffect(() => {
-  fetchFranchiseListing()
+  // Get industry from URL params
+  const industry = searchParams.get('industry');
+  
+  fetchFranchiseListing(industry, 1)
     .then((res) => {
       if (!res?.success) return;
-
       const sections = res.data?.sections || [];
 
       // HERO SECTION ✅
@@ -318,8 +334,8 @@ useEffect(() => {
         
         // Debug: Log the first item to see what tags look like
         if (mappedData.length > 0) {
-          console.log("Sample franchise item:", mappedData[0]);
-          console.log("All unique tags:", [...new Set(mappedData.flatMap(item => item.tags || []))]);
+        //   console.log("Sample franchise item:", mappedData[0]);
+        //   console.log("All unique tags:", [...new Set(mappedData.flatMap(item => item.tags || []))]);
         }
       }
     //   console.log(listingSection.data)
@@ -329,7 +345,10 @@ useEffect(() => {
       );
 
       if (featuredSection) {
+        // console.log("Featured Categories Data:", featuredSection.data);
         setFeaturedCategories(featuredSection.data);
+      } else {
+        // console.log("Featured categories section not found or disabled");
       }
 
 
@@ -340,7 +359,10 @@ useEffect(() => {
     );
 
     if (questionSection) {
+    //   console.log("Category Questions Data:", questionSection.data?.questions);
       setCategoryQuestions(questionSection.data?.questions || []);
+    } else {
+    //   console.log("Category questions section not found or disabled");
     }
 
       const recommendedSection = sections.find(
@@ -350,17 +372,32 @@ useEffect(() => {
       );
 
       if (recommendedSection) {
+        // console.log("Recommended Franchises Data:", recommendedSection.data?.items);
         setRecommendedFranchises(
           recommendedSection.data?.items || []
         );
+      } else {
+        // console.log("Recommended franchises section not found or disabled");
       }
 
+      const insightsSection = sections.find(
+        (section) =>
+          section.type === "key_market_insights" &&
+          section.enabled === true
+      );
+
+      if (insightsSection) {
+        // console.log("Market Insights Data:", insightsSection.data);
+        setMarketInsights(insightsSection.data);
+      } else {
+        // console.log("Market insights section not found or disabled");
+      }
 
     })
     .catch((err) => {
-      console.error("Error fetching franchise listing:", err);
+    //   console.error("Error fetching franchise listing:", err);
     });
-}, []);
+}, [searchParams]);
 
   
  
@@ -454,148 +491,16 @@ const [showLocal, setShowLocal] = useState(false);
            {heroData && <Hero data={heroData} />}
 
           {/* Search & Filters */}
-          <div className="flex items-center gap-3 mt-1 sm:mt-2 flex-wrap">
-            {/* Search bar */}
-            <div className="flex items-center bg-white rounded-sm px-2 sm:px-3 py-1.5 sm:py-2 w-full sm:w-96">
-              <img
-                src="/abhinay/franchise/random1a.png"
-                className="w-4 h-4"
-                alt=""
-              />
-
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Industry, Sector, Brand name"
-                aria-label="Search franchises by industry, sector or brand name"
-                className="flex-1 outline-none text-black text-sm px-2 bg-transparent"
-              />
-
-              {/* Active Category Filters */}
-              {selectedCategories.length > 0 && (
-                <>
-                  {selectedCategories.slice(0, 2).map((category, idx) => (
-                    <div
-                      key={idx}
-                      className="bg-blue-100 text-blue-700 px-2 py-1 rounded-lg text-xs font-medium flex items-center gap-1 whitespace-nowrap"
-                    >
-                      <span className="max-w-[100px] truncate">{category}</span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleCategory(category);
-                        }}
-                        className="hover:text-blue-900"
-                        aria-label="Remove filter"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
-                  {selectedCategories.length > 2 && (
-                    <span className="text-blue-700 text-xs font-medium">+{selectedCategories.length - 2}</span>
-                  )}
-                </>
-              )}
-
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm("")}
-                  className="text-gray-500 hover:text-red-500 px-2"
-                  aria-label="Clear search"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-
-            {/* Add Filter button */}
-            <button 
-              onClick={() => setShowFilterModal(true)}
-              className="bg-white flex gap-2 items-center text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-200 transition"
-            >
-              <img
-                src="/abhinay/franchise/random1b.png"
-                className="w-3 h-3"
-                alt=""
-              />
-              <span className="text-[#4A53FA]">
-                {selectedCategories.length > 0 ? `Filters (${selectedCategories.length})` : 'Add Filter'}
-              </span>
-            </button>
-
-            {/* Clear All Filters */}
-            {(selectedCategories.length > 0 || searchTerm) && (
-              <button 
-                onClick={clearAllFilters}
-                className="text-white text-sm underline hover:text-gray-200 transition"
-              >
-                Clear All
-              </button>
-            )}
-          </div>
+         
 
           {/* Category tags */}
-          <div className="flex gap-2 mt-2 text-[11px] sm:text-xs flex-wrap">
-            <button 
-              onClick={() => setActiveFilterType("All")}
-              className={`px-3 py-1 rounded-lg transition ${
-                activeFilterType === "All" ? "bg-white text-black" : "hover:bg-white hover:text-black"
-              }`}
-            >
-              All
-            </button>
-            <button 
-              onClick={() => setActiveFilterType("Industry")}
-              className={`px-3 py-1 rounded-lg transition ${
-                activeFilterType === "Industry" ? "bg-white text-black" : "hover:bg-white hover:text-black"
-              }`}
-            >
-              Industry
-            </button>
-            <button 
-              onClick={() => setActiveFilterType("Sector")}
-              className={`px-3 py-1 rounded-lg transition ${
-                activeFilterType === "Sector" ? "bg-white text-black" : "hover:bg-white hover:text-black"
-              }`}
-            >
-              Sector
-            </button>
-            <button 
-              onClick={() => setActiveFilterType("Investment")}
-              className={`px-3 py-1 rounded-lg transition ${
-                activeFilterType === "Investment" ? "bg-white text-black" : "hover:bg-white hover:text-black"
-              }`}
-            >
-              Investment
-            </button>
-            <button 
-              onClick={() => setActiveFilterType("City")}
-              className={`px-3 py-1 rounded-lg transition ${
-                activeFilterType === "City" ? "bg-white text-black" : "hover:bg-white hover:text-black"
-              }`}
-            >
-              City
-            </button>
-          </div>
+        
         </div>
 
         {/* Toggle Switch - Right Corner */}
         <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 flex items-center gap-2 text-xs sm:text-sm">
-          <span className="hidden sm:inline">Show Local Franchises</span>
-          <label
-            className="relative inline-flex items-center cursor-pointer"
-            aria-label="Toggle local franchises"
-          >
-            <input
-              type="checkbox"
-              checked={showLocal}
-              onChange={() => setShowLocal((v) => !v)}
-              className="sr-only peer"
-            />
-            <div className="w-10 h-5 bg-gray-400 peer-checked:bg-blue-500 rounded-full after:content-[''] after:absolute after:w-4 after:h-4 after:bg-white after:rounded-full after:top-0.5 after:left-0.5 after:transition-all peer-checked:after:translate-x-5"></div>
-          </label>
+          {/* <span className="hidden sm:inline">Show Local Franchises</span> */}
+          
         </div>
       </section>
 
@@ -679,25 +584,17 @@ const [showLocal, setShowLocal] = useState(false);
       {filteredFranchises.length > 0 ? (
         <FcardGrid items={filteredFranchises} />
       ) : (
-        <div className="px-3 sm:px-6 lg:px-12 xl:px-20 py-20 text-center">
-          <div className="max-w-md mx-auto">
-            <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-2xl font-semibold text-gray-800 mb-2">No franchises found</h3>
-            <p className="text-gray-600 mb-4">
-              {selectedCategories.length > 0 || searchTerm 
-                ? "Try adjusting your filters or search term"
-                : "No franchises available at the moment"}
-            </p>
-            {(selectedCategories.length > 0 || searchTerm) && (
-              <button
-                onClick={clearAllFilters}
-                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-              >
-                Clear All Filters
-              </button>
-            )}
-          </div>
-        </div>
+        <div className="px-3 sm:px-6 lg:px-12 xl:px-20 py-20 flex justify-center items-center">
+  <div className="flex flex-col items-center">
+    <div className="w-16 h-16 border-4 border-t-4 rounded-full animate-spin"
+         style={{
+           borderColor: "#e5e7eb",
+           borderTopColor: "#6D3E93"
+         }}>
+    </div>
+    <p className="mt-4 text-gray-600">Loading franchises...</p>
+  </div>
+</div>
       )}
 
 
@@ -705,7 +602,7 @@ const [showLocal, setShowLocal] = useState(false);
         <div className="w-full px-6 py-10 bg-white">
           <div className="flex gap-6">
             {/* Left side - Franchise grid */}
-            {featuredCategories && <FeaturedFranchiseCategories
+            {featuredCategories.length > 0 && <FeaturedFranchiseCategories
   title="Featured all franchise categories"
   data={featuredCategories}   // backend mapped data
   showViewMore={true}
@@ -714,7 +611,7 @@ const [showLocal, setShowLocal] = useState(false);
 
 
             {/* Right side - Insights */}
-            {categoryQuestions && (
+            {categoryQuestions.length > 0 && (
   <CategoryQuestions data={categoryQuestions} />
 )}
 
@@ -731,31 +628,33 @@ const [showLocal, setShowLocal] = useState(false);
                 and investment range.
                 Explore high-potential food businesses that are expanding fast.
               </p>
-              {recommendedFranchises && <RecommendedFranchises data={recommendedFranchises} />}
+              {recommendedFranchises.length > 0 && <RecommendedFranchises data={recommendedFranchises} />}
             </div>
 
             {/* Right side: Market insights */}
-            <div className="w-[350px] border border-[#EDEDED] rounded-xl p-6">
-              <h3 className="text-lg font-bold mb-3">Key Market insights</h3>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-[#268BFF] font-medium">Market Trend</p>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Golf is evolving from an elite outdoor sport to an
-                    accessible indoor entertainment and training experience
-                    through simulators and golf lounges.
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[#268BFF] font-medium">Growth Rate</p>
-                  <p className="text-gray-600 text-sm mt-1">
-                    The indoor golf simulator market in India is growing at a
-                    CAGR of 17–20%, driven by rising disposable income in
-                    premium experiences, and tech adoption.
-                  </p>
+            {marketInsights && (
+              <div className="w-[350px] border border-[#EDEDED] rounded-xl p-6">
+                <h3 className="text-lg font-bold mb-3">Key Market insights</h3>
+                <div className="space-y-3">
+                  {marketInsights.market_trend && (
+                    <div>
+                      <p className="text-[#268BFF] font-medium">{marketInsights.market_trend.title}</p>
+                      <p className="text-gray-600 text-sm mt-1">
+                        {marketInsights.market_trend.description}
+                      </p>
+                    </div>
+                  )}
+                  {marketInsights.growth_rate && (
+                    <div>
+                      <p className="text-[#268BFF] font-medium">{marketInsights.growth_rate.title}</p>
+                      <p className="text-gray-600 text-sm mt-1">
+                        {marketInsights.growth_rate.description}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Disclaimer */}

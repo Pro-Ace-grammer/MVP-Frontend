@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { IKImage } from "imagekitio-react";
 import { MdVerified } from "react-icons/md";
 import { IoMdInformationCircleOutline } from "react-icons/io";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { fetchFranchiseListing } from "../lib/api";
 import Hero from "./Hero";
 import FeaturedFranchiseCategories from "./FeaturedFranchiseCategories";
@@ -105,7 +105,7 @@ const Fcard = ({
           {tags.map((tag, index) => (
             <span
               key={index}
-    className="px-6 py-3 bg-white rounded-full text-xs font-medium text-gray-700 shadow-sm inline-flex items-center justify-center"
+                className="px-6 py-3 bg-white rounded-full text-xs font-medium text-gray-700 shadow-sm inline-flex items-center justify-center"
             >
               {tag}
             </span>
@@ -197,6 +197,7 @@ const FcardGrid = ({
     </div>
   );
 };
+
 const formatRange = (min, max, unit) => {
   if (!min || !max) return "";
   return `${min}-${max} ${unit}`;
@@ -213,7 +214,7 @@ const mapFranchiseListingToCard = (items = []) => {
       since: item.year_of_establishment,
       rating: item.rating,
       tags: item.tags || [],
-      category:item.category,
+      category: item.category, // ✅ Add category field
       verified: item.tags?.includes("Verified") || true,
       logoUrl: item.logo?.url,
      stats: {
@@ -231,26 +232,77 @@ const mapFranchiseListingToCard = (items = []) => {
 },
       c: item.color,
       slug: item.slug,
+    
 }));
 };
 
 
-const fCat = { category: "food" };
+const CATEGORIES = [
+  "Food & Beverage",
+  "Retail",
+  "Beauty, Personal Care & Grooming",
+  "Health & Fitness",
+  "Education & EdTech",
+  "Automobile Services",
+  "Home Services",
+  "Business & Professional Services",
+  "Real Estate & Property Services",
+  "Logistics & Delivery Services",
+  "Entertainment & Leisure",
+  "Agriculture & Sustainability",
+  "Transportation & Mobility",
+  "Hospitality & Lodging",
+  "Financial Services",
+  "Printing, Publishing & Media",
+  "Government & Utility Services",
+  "Miscellaneous & Specialized Services",
+];
 
-export default function NewFranchiseListing() {
-const [direction, setDirection] = React.useState("");
-
+export default function ChtList() {
+    const [searchParams, setSearchParams] = useSearchParams();
     const [heroData, setHeroData] = useState(null);
 const [franchiseItems, setFranchiseItems] = useState([]);
 const [featuredCategories, setFeaturedCategories] = useState([]);
 const [categoryQuestions, setCategoryQuestions] = useState([]);
 const [recommendedFranchises, setRecommendedFranchises] = useState([]);
-const [activeFilters, setActiveFilters] = useState([fCat]);
+const [marketInsights, setMarketInsights] = useState(null);
+const [selectedCategories, setSelectedCategories] = useState([]);
+const [showFilterModal, setShowFilterModal] = useState(false);
+const [activeFilterType, setActiveFilterType] = useState("All");
+
+// Initialize selected categories from URL params on mount
 useEffect(() => {
-  fetchFranchiseListing()
+  const catParam = searchParams.get('category');
+  if (catParam) {
+    const categories = catParam.split(',').filter(Boolean);
+    setSelectedCategories(categories);
+  }
+}, []); // Only run on mount
+
+// Update URL when selected categories change
+useEffect(() => {
+  setSearchParams((prev) => {
+    const newParams = new URLSearchParams(prev);
+    
+    // Update or remove category parameter
+    if (selectedCategories.length > 0) {
+      newParams.set('category', selectedCategories.join(','));
+    } else {
+      newParams.delete('category');
+    }
+    
+    return newParams;
+  }, { replace: true });
+}, [selectedCategories, setSearchParams]);
+
+
+useEffect(() => {
+  // Get industry from URL params
+  const industry = searchParams.get('industry');
+  
+  fetchFranchiseListing(industry, 1)
     .then((res) => {
       if (!res?.success) return;
-
       const sections = res.data?.sections || [];
 
       // HERO SECTION ✅
@@ -275,6 +327,12 @@ useEffect(() => {
           listingSection.data
         );
         setFranchiseItems(mappedData);
+        
+        // Debug: Log the first item to see what tags look like
+        if (mappedData.length > 0) {
+        //   console.log("Sample franchise item:", mappedData[0]);
+        //   console.log("All unique tags:", [...new Set(mappedData.flatMap(item => item.tags || []))]);
+        }
       }
     //   console.log(listingSection.data)
 
@@ -283,7 +341,10 @@ useEffect(() => {
       );
 
       if (featuredSection) {
+        // console.log("Featured Categories Data:", featuredSection.data);
         setFeaturedCategories(featuredSection.data);
+      } else {
+        // console.log("Featured categories section not found or disabled");
       }
 
 
@@ -294,7 +355,10 @@ useEffect(() => {
     );
 
     if (questionSection) {
+    //   console.log("Category Questions Data:", questionSection.data?.questions);
       setCategoryQuestions(questionSection.data?.questions || []);
+    } else {
+    //   console.log("Category questions section not found or disabled");
     }
 
       const recommendedSection = sections.find(
@@ -304,17 +368,32 @@ useEffect(() => {
       );
 
       if (recommendedSection) {
+        // console.log("Recommended Franchises Data:", recommendedSection.data?.items);
         setRecommendedFranchises(
           recommendedSection.data?.items || []
         );
+      } else {
+        // console.log("Recommended franchises section not found or disabled");
       }
 
+      const insightsSection = sections.find(
+        (section) =>
+          section.type === "key_market_insights" &&
+          section.enabled === true
+      );
+
+      if (insightsSection) {
+        // console.log("Market Insights Data:", insightsSection.data);
+        setMarketInsights(insightsSection.data);
+      } else {
+        // console.log("Market insights section not found or disabled");
+      }
 
     })
     .catch((err) => {
-      console.error("Error fetching franchise listing:", err);
+    //   console.error("Error fetching franchise listing:", err);
     });
-}, []);
+}, [searchParams]);
 
   
  
@@ -322,6 +401,81 @@ useEffect(() => {
   
 const [showLocal, setShowLocal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Filter franchises based on selected categories and search term
+  const filteredFranchises = useMemo(() => {
+    let filtered = franchiseItems;
+
+    // Filter by categories
+    if (selectedCategories.length > 0) {
+      filtered = filtered.filter(item => {
+        // Check if any selected category matches the item
+        return selectedCategories.some(cat => {
+          const categoryLower = cat.toLowerCase();
+          
+          // ✅ PRIORITY: Check the main category field first (exact match)
+          if (item.category?.toLowerCase() === categoryLower) {
+            return true;
+          }
+          
+          // Also check partial match in category (e.g., "Food" matches "Food & Beverage")
+          if (item.category?.toLowerCase().includes(categoryLower) || categoryLower.includes(item.category?.toLowerCase())) {
+            return true;
+          }
+          
+          // Check exact match in tags
+          if (item.tags?.some(tag => tag.toLowerCase() === categoryLower)) {
+            return true;
+          }
+          
+          // Check partial match in tags
+          if (item.tags?.some(tag => tag.toLowerCase().includes(categoryLower) || categoryLower.includes(tag.toLowerCase()))) {
+            return true;
+          }
+          
+          // Check in title
+          if (item.title?.toLowerCase().includes(categoryLower)) {
+            return true;
+          }
+          
+          // Check in description
+          if (item.description?.toLowerCase().includes(categoryLower)) {
+            return true;
+          }
+          
+          return false;
+        });
+      });
+    }
+
+    // Filter by search term
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(item => 
+        item.title?.toLowerCase().includes(term) ||
+        item.description?.toLowerCase().includes(term) ||
+        item.location?.toLowerCase().includes(term) ||
+        item.category?.toLowerCase().includes(term) ||
+        item.tags?.some(tag => tag.toLowerCase().includes(term))
+      );
+    }
+
+    return filtered;
+  }, [franchiseItems, selectedCategories, searchTerm]);
+
+  const toggleCategory = (category) => {
+    setSelectedCategories(prev => 
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+
+  const clearAllFilters = () => {
+    setSelectedCategories([]);
+    setSearchTerm("");
+    setActiveFilterType("All");
+  };
   return (
     <>
       <Toaster position="top-right" />
@@ -351,17 +505,20 @@ const [showLocal, setShowLocal] = useState(false);
                 className="flex-1 outline-none text-black text-sm px-2 bg-transparent"
               />
 
-              {/* Active Filters */}
-              {activeFilters.length > 0 && (
+              {/* Active Category Filters */}
+              {selectedCategories.length > 0 && (
                 <>
-                  {activeFilters.map((filter, idx) => (
+                  {selectedCategories.slice(0, 2).map((category, idx) => (
                     <div
                       key={idx}
-                      className="bg-blue-100 text-blue-700 px-2 py-1 rounded-lg text-xs font-medium flex items-center gap-1"
+                      className="bg-blue-100 text-blue-700 px-2 py-1 rounded-lg text-xs font-medium flex items-center gap-1 whitespace-nowrap"
                     >
-                      <span>{filter.category}</span>
+                      <span className="max-w-[100px] truncate">{category}</span>
                       <button
-                        onClick={() => setActiveFilters(activeFilters.filter((_, i) => i !== idx))}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleCategory(category);
+                        }}
                         className="hover:text-blue-900"
                         aria-label="Remove filter"
                       >
@@ -369,6 +526,9 @@ const [showLocal, setShowLocal] = useState(false);
                       </button>
                     </div>
                   ))}
+                  {selectedCategories.length > 2 && (
+                    <span className="text-blue-700 text-xs font-medium">+{selectedCategories.length - 2}</span>
+                  )}
                 </>
               )}
 
@@ -384,33 +544,73 @@ const [showLocal, setShowLocal] = useState(false);
             </div>
 
             {/* Add Filter button */}
-            <button className="bg-white flex gap-2 items-center text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-200 transition">
+            <button 
+              onClick={() => setShowFilterModal(true)}
+              className="bg-white flex gap-2 items-center text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-200 transition"
+            >
               <img
                 src="/abhinay/franchise/random1b.png"
                 className="w-3 h-3"
                 alt=""
               />
-              <span className="text-[#4A53FA]">Add Filter</span>
+              <span className="text-[#4A53FA]">
+                {selectedCategories.length > 0 ? `Filters (${selectedCategories.length})` : 'Add Filter'}
+              </span>
             </button>
+
+            {/* Clear All Filters */}
+            {(selectedCategories.length > 0 || searchTerm) && (
+              <button 
+                onClick={clearAllFilters}
+                className="text-white text-sm underline hover:text-gray-200 transition"
+              >
+                Clear All
+              </button>
+            )}
           </div>
 
           {/* Category tags */}
           <div className="flex gap-2 mt-2 text-[11px] sm:text-xs flex-wrap">
-            <span className="px-3 py-1 hover:bg-white hover:text-black rounded-lg">
+            <button 
+              onClick={() => setActiveFilterType("All")}
+              className={`px-3 py-1 rounded-lg transition ${
+                activeFilterType === "All" ? "bg-white text-black" : "hover:bg-white hover:text-black"
+              }`}
+            >
               All
-            </span>
-            <span className="px-3 py-1 hover:bg-white hover:text-black rounded-lg">
+            </button>
+            <button 
+              onClick={() => setActiveFilterType("Industry")}
+              className={`px-3 py-1 rounded-lg transition ${
+                activeFilterType === "Industry" ? "bg-white text-black" : "hover:bg-white hover:text-black"
+              }`}
+            >
               Industry
-            </span>
-            <span className="px-3 py-1 hover:bg-white hover:text-black rounded-lg">
+            </button>
+            <button 
+              onClick={() => setActiveFilterType("Sector")}
+              className={`px-3 py-1 rounded-lg transition ${
+                activeFilterType === "Sector" ? "bg-white text-black" : "hover:bg-white hover:text-black"
+              }`}
+            >
               Sector
-            </span>
-            <span className="px-3 py-1 hover:bg-white hover:text-black rounded-lg">
+            </button>
+            <button 
+              onClick={() => setActiveFilterType("Investment")}
+              className={`px-3 py-1 rounded-lg transition ${
+                activeFilterType === "Investment" ? "bg-white text-black" : "hover:bg-white hover:text-black"
+              }`}
+            >
               Investment
-            </span>
-            <span className="px-3 py-1 hover:bg-white hover:text-black rounded-lg">
+            </button>
+            <button 
+              onClick={() => setActiveFilterType("City")}
+              className={`px-3 py-1 rounded-lg transition ${
+                activeFilterType === "City" ? "bg-white text-black" : "hover:bg-white hover:text-black"
+              }`}
+            >
               City
-            </span>
+            </button>
           </div>
         </div>
 
@@ -432,16 +632,114 @@ const [showLocal, setShowLocal] = useState(false);
         </div>
       </section>
 
-      {franchiseItems && (
-  <FcardGrid items={franchiseItems} />
-)}
+      {/* Category Filter Modal */}
+      {showFilterModal && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={() => setShowFilterModal(false)}
+        >
+          <div 
+            className="bg-white rounded-2xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold text-gray-900">Filter by Category</h3>
+              <button 
+                onClick={() => setShowFilterModal(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="mb-4">
+              <p className="text-sm text-gray-600">
+                Selected: <span className="font-semibold">{selectedCategories.length}</span> categories
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {CATEGORIES.map((category) => {
+                const isSelected = selectedCategories.includes(category);
+                return (
+                  <button
+                    key={category}
+                    onClick={() => toggleCategory(category)}
+                    className={`px-4 py-3 rounded-lg text-left text-sm font-medium transition ${
+                      isSelected 
+                        ? "bg-blue-500 text-white shadow-md" 
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{category}</span>
+                      {isSelected && <span className="text-lg">✓</span>}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setSelectedCategories([])}
+                className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+              >
+                Clear All
+              </button>
+              <button
+                onClick={() => setShowFilterModal(false)}
+                className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+              >
+                Apply Filters
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Results Section */}
+      <div className="px-3 sm:px-6 lg:px-12 xl:px-20 py-4">
+        <div className="flex justify-between items-center">
+          <p className="text-gray-700">
+            {selectedCategories.length > 0 && (
+              <span className="text-blue-600 ml-2">({selectedCategories.length} filter{selectedCategories.length > 1 ? 's' : ''} active)</span>
+            )}
+          </p>
+        </div>
+      </div>
+
+      {filteredFranchises.length > 0 ? (
+        <FcardGrid items={filteredFranchises} />
+      ) : (
+        <div className="px-3 sm:px-6 lg:px-12 xl:px-20 py-20 text-center">
+          <div className="max-w-md mx-auto">
+            <div className="text-6xl mb-4">🔍</div>
+            <h3 className="text-2xl font-semibold text-gray-800 mb-2">No franchises found</h3>
+            <p className="text-gray-600 mb-4">
+              {selectedCategories.length > 0 || searchTerm 
+                ? "Try adjusting your filters or search term"
+                : "No franchises available at the moment"}
+            </p>
+            {(selectedCategories.length > 0 || searchTerm) && (
+              <button
+                onClick={clearAllFilters}
+                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+              >
+                Clear All Filters
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
 
       <div className="max-w-[87rem] mx-auto">
         <div className="w-full px-6 py-10 bg-white">
           <div className="flex gap-6">
             {/* Left side - Franchise grid */}
-            {featuredCategories && <FeaturedFranchiseCategories
-  title={`Featured ${fCat.category} franchise categories`}
+            {featuredCategories.length > 0 && <FeaturedFranchiseCategories
+  title="Featured all franchise categories"
   data={featuredCategories}   // backend mapped data
   showViewMore={true}
 />}
@@ -449,7 +747,7 @@ const [showLocal, setShowLocal] = useState(false);
 
 
             {/* Right side - Insights */}
-            {categoryQuestions && (
+            {categoryQuestions.length > 0 && (
   <CategoryQuestions data={categoryQuestions} />
 )}
 
@@ -466,31 +764,33 @@ const [showLocal, setShowLocal] = useState(false);
                 and investment range.
                 Explore high-potential food businesses that are expanding fast.
               </p>
-              {recommendedFranchises && <RecommendedFranchises data={recommendedFranchises} />}
+              {recommendedFranchises.length > 0 && <RecommendedFranchises data={recommendedFranchises} />}
             </div>
 
             {/* Right side: Market insights */}
-            <div className="w-[350px] border border-[#EDEDED] rounded-xl p-6">
-              <h3 className="text-lg font-bold mb-3">Key Market insights</h3>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-[#268BFF] font-medium">Market Trend</p>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Golf is evolving from an elite outdoor sport to an
-                    accessible indoor entertainment and training experience
-                    through simulators and golf lounges.
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[#268BFF] font-medium">Growth Rate</p>
-                  <p className="text-gray-600 text-sm mt-1">
-                    The indoor golf simulator market in India is growing at a
-                    CAGR of 17–20%, driven by rising disposable income in
-                    premium experiences, and tech adoption.
-                  </p>
+            {marketInsights && (
+              <div className="w-[350px] border border-[#EDEDED] rounded-xl p-6">
+                <h3 className="text-lg font-bold mb-3">Key Market insights</h3>
+                <div className="space-y-3">
+                  {marketInsights.market_trend && (
+                    <div>
+                      <p className="text-[#268BFF] font-medium">{marketInsights.market_trend.title}</p>
+                      <p className="text-gray-600 text-sm mt-1">
+                        {marketInsights.market_trend.description}
+                      </p>
+                    </div>
+                  )}
+                  {marketInsights.growth_rate && (
+                    <div>
+                      <p className="text-[#268BFF] font-medium">{marketInsights.growth_rate.title}</p>
+                      <p className="text-gray-600 text-sm mt-1">
+                        {marketInsights.growth_rate.description}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Disclaimer */}

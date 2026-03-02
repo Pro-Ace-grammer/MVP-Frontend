@@ -3,7 +3,7 @@ import Keycloak from "keycloak-js";
 
 // 🔹 Configure Keycloak
 const keycloak = new Keycloak({
-  url: "http://127.0.0.1:8080",   // Keycloak server URL
+  url: "http://localhost:8080",   // Keycloak server URL
   realm: "myrealm",              // 🔁 Replace with your realm name
   clientId: "myclient",          // 🔁 Replace with your client ID
 });

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import Chart from "chart.js/auto";
 
-export default function FranchiseTabs() {
+export default function FranchiseTabs({ franchiseData }) {
   const [activeTab, setActiveTab] = useState("Business Overview");
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
@@ -95,32 +95,40 @@ export default function FranchiseTabs() {
             {/* Left */}
             <div className="space-y-6">
               <div>
-                <h3 className="font-bold text-lg">Franchise Category</h3>
-                <p className="text-gray-700 mt-2">
-                  Kids’ Food & Beverage Franchise
-                </p>
-              </div>
-
-              <div>
                 <h3 className="font-bold text-lg">Sector</h3>
                 <p className="text-gray-700 mt-2">
-                  Quick Service Restaurant / Fast Food
+                  {franchiseData?.data?.operation?.sector || "Not specified"}
                 </p>
               </div>
 
               <div>
                 <h3 className="font-bold text-lg">Service</h3>
-                <p className="text-gray-700 mt-2">
-                  Kathi Rolls, Fast Casual Indian & Mughlai Cuisine
-                </p>
+                {franchiseData?.data?.operation?.service && franchiseData.data.operation.service.length > 0 ? (
+                  <ul className="list-disc pl-5 mt-2 text-gray-700 space-y-1">
+                    {franchiseData.data.operation.service.map((service, index) => (
+                      <li key={index}>{service}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-gray-700 mt-2">
+                    {franchiseData?.data?.operation?.required_property || "Not specified"}
+                  </p>
+                )}
               </div>
 
               <div>
                 <h3 className="font-bold text-lg">Qualifications Required</h3>
                 <p className="text-gray-700 mt-2 leading-relaxed">
-                  Basic business management skills, passion for food &
-                  beverage industry, willingness to invest ₹8–15 Lakhs,
-                  good retail location, dedication.
+                  {franchiseData?.data?.operation?.qualification_required || "Not specified"}
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-bold text-lg">Staff Required</h3>
+                <p className="text-gray-700 mt-2">
+                  {franchiseData?.data?.operation?.staff_required
+                    ? `${franchiseData.data.operation.staff_required.min} – ${franchiseData.data.operation.staff_required.max} staff members`
+                    : "Not specified"}
                 </p>
               </div>
             </div>
@@ -132,8 +140,7 @@ export default function FranchiseTabs() {
                   Is absentee ownership allowed?
                 </h3>
                 <p className="text-gray-700 mt-2 leading-relaxed">
-                  NO – Requires active involvement in daily operations,
-                  quality control, and customer service.
+                  {franchiseData?.data?.operation?.is_absentee_ownership_allowed || "Not specified"}
                 </p>
               </div>
 
@@ -142,18 +149,11 @@ export default function FranchiseTabs() {
                   Can this franchise be run from home/mobile?
                 </h3>
                 <p className="text-gray-700 mt-2">
-                  NO – Requires dedicated physical retail space.
+                  {franchiseData?.data?.operation?.can_be_run_from_home_or_mobile || "Not specified"}
                 </p>
               </div>
 
-              <div>
-                <h3 className="font-bold text-lg">
-                  Can this franchise be run part-time?
-                </h3>
-                <p className="text-gray-700 mt-2">
-                  NO – Full-time management required.
-                </p>
-              </div>
+
             </div>
           </div>
         )}
@@ -169,45 +169,47 @@ export default function FranchiseTabs() {
               <div>
                 <h3 className="font-bold text-lg">Initial Investment</h3>
                 <p className="text-gray-700 mt-2">
-                  ₹6 Lakhs – ₹18 Lakhs depending on franchise model and location
+                  {franchiseData?.data?.investment_details?.initial_investment 
+                    ? `₹${franchiseData.data.investment_details.initial_investment.min} – ₹${franchiseData.data.investment_details.initial_investment.max} ${franchiseData.data.investment_details.initial_investment.unit}`
+                    : "Not specified"}
                 </p>
+                {franchiseData?.data?.investment_details?.initial_investment?.notes && (
+                  <p className="text-gray-600 text-sm mt-1">
+                    {franchiseData.data.investment_details.initial_investment.notes}
+                  </p>
+                )}
               </div>
 
               <div>
                 <h3 className="font-bold text-lg">Investment Breakdown</h3>
                 <ul className="list-disc pl-5 mt-2 text-gray-700 space-y-1">
-                  <li>Franchise fee: ₹1–4 Lakhs</li>
-                  <li>Infrastructure & kitchen setup: ₹3–6 Lakhs</li>
-                  <li>Interiors & Branding: ₹1.5–2 Lakhs</li>
-                  <li>Miscellaneous: ₹50,000</li>
+                  {(franchiseData?.data?.investment_details?.investment_breakdown || []).map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
                 </ul>
               </div>
 
               <div>
                 <h3 className="font-bold text-lg">Franchise Fee</h3>
                 <p className="text-gray-700 mt-2">
-                  ₹1 Lakhs to ₹4 Lakhs
+                  {franchiseData?.data?.investment_details?.franchise_fee 
+                    ? `₹${franchiseData.data.investment_details.franchise_fee.min} to ₹${franchiseData.data.investment_details.franchise_fee.max} ${franchiseData.data.investment_details.franchise_fee.unit}`
+                    : "Not specified"}
                 </p>
               </div>
 
-              <div>
-                <h3 className="font-bold text-lg">Single Unit Investment</h3>
-                <p className="text-gray-700 mt-2 leading-relaxed">
-                  Food Court / Express: ₹6–7 Lakhs <br />
-                  Dining Restaurant: ₹8–10 Lakhs <br />
-                  Large / Full Dine-in: ₹15–18 Lakhs
-                </p>
-              </div>
+
             </div>
 
             {/* Right */}
             <div className="space-y-6">
               <div>
-                <h3 className="font-bold text-lg">Required Property</h3>
-                <p className="text-gray-700 mt-2">
-                  Commercial location: malls, food courts, high footfall
-                  areas, near colleges/universities.
-                </p>
+                <h3 className="font-bold text-lg">Required Property Location</h3>
+                <ul className="list-disc pl-5 mt-2 text-gray-700 space-y-1">
+                  {(franchiseData?.data?.investment_details?.required_property_location || []).map((location, index) => (
+                    <li key={index}>{location}</li>
+                  ))}
+                </ul>
               </div>
 
               <div>
@@ -215,9 +217,9 @@ export default function FranchiseTabs() {
                   Floor Area (Single Unit)
                 </h3>
                 <p className="text-gray-700 mt-2 leading-relaxed">
-                  Food Court Express: 200 sq. ft. (Kitchen + Counter + Store)
-                  <br />
-                  Dining Restaurant: 300–600 sq. ft.
+                  {franchiseData?.data?.investment_details?.floor_area 
+                    ? `${franchiseData.data.investment_details.floor_area.min} – ${franchiseData.data.investment_details.floor_area.max} ${franchiseData.data.investment_details.floor_area.unit}`
+                    : "Not specified"}
                 </p>
               </div>
             </div>
@@ -235,28 +237,18 @@ export default function FranchiseTabs() {
               <div>
                 <h3 className="font-bold text-lg">Products</h3>
                 <ul className="list-disc pl-5 mt-2 text-gray-700 space-y-1">
-                  <li>Fast Food Items</li>
-                  <li>Beverages</li>
-                  <li>Desserts</li>
-                  <li>Packaged Food</li>
-                  <li>Healthy Options</li>
-                  <li>Regional & Traditional Cuisine</li>
-                  <li>Meal Combos & Family Packs</li>
-                  <li>Kids’ Special Menu</li>
+                  {(franchiseData?.data?.business_overview?.products || []).map((product, index) => (
+                    <li key={index}>{product}</li>
+                  ))}
                 </ul>
               </div>
 
               <div>
                 <h3 className="font-bold text-lg">Services</h3>
                 <ul className="list-disc pl-5 mt-2 text-gray-700 space-y-1">
-                  <li>Dine-in Facility</li>
-                  <li>Takeaway & Delivery</li>
-                  <li>Online Ordering</li>
-                  <li>Catering Services</li>
-                  <li>Loyalty Programs</li>
-                  <li>Customized Meals</li>
-                  <li>Franchise Training</li>
-                  <li>Marketing Support</li>
+                  {(franchiseData?.data?.business_overview?.services || []).map((service, index) => (
+                    <li key={index}>{service}</li>
+                  ))}
                 </ul>
               </div>
             </div>
@@ -264,15 +256,36 @@ export default function FranchiseTabs() {
             {/* Right */}
             <div className="space-y-6">
               <h3 className="font-bold text-lg">Training & Support</h3>
-              <p className="text-gray-700 leading-relaxed">
-                We provide complete training and ongoing support including
-                operations, marketing, technology setup, and staff training
-                to ensure franchise success.
-              </p>
-
-              <div className="bg-white rounded-2xl shadow p-6 w-full h-[20rem]">
-                <canvas ref={chartRef}></canvas>
+              <div className="text-gray-700 leading-relaxed space-y-2">
+                {franchiseData?.data?.business_overview?.training_and_support ? (
+                  <>
+                    {franchiseData.data.business_overview.training_and_support.franchisee_training_program && (
+                      <p>✓ Franchisee Training Program</p>
+                    )}
+                    {franchiseData.data.business_overview.training_and_support.classroom_training && (
+                      <p>✓ Classroom Training</p>
+                    )}
+                    {franchiseData.data.business_overview.training_and_support.on_the_job_training && (
+                      <p>✓ On-the-Job Training</p>
+                    )}
+                    {franchiseData.data.business_overview.training_and_support.field_assistance && (
+                      <p>✓ Field Assistance</p>
+                    )}
+                    {franchiseData.data.business_overview.training_and_support.marketing_support && (
+                      <p>✓ Marketing Support</p>
+                    )}
+                    {franchiseData.data.business_overview.training_and_support.ongoing_support && (
+                      <p>✓ Ongoing Support</p>
+                    )}
+                  </>
+                ) : (
+                  <p>Training and support information not available.</p>
+                )}
               </div>
+
+              {/* <div className="bg-white rounded-2xl shadow p-6 w-full h-[20rem]">
+                <canvas ref={chartRef}></canvas>
+              </div> */}
 
             </div>
           </div>

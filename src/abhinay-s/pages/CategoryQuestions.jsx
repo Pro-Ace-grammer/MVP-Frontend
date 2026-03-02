@@ -5,6 +5,8 @@ const CategoryQuestions = ({
   title = "Understanding Category franchise",
   data = [],
 }) => {
+
+    
   const navigate = useNavigate();
 
   // safety check
@@ -24,17 +26,17 @@ const CategoryQuestions = ({
 
       {/* Questions */}
       <ul className="space-y-3">
-        {data.map((item, index) => (
-          <li key={item.id || index}>
-            <button
-              onClick={() => handleQuestionClick(item.question)}
-              className="text-[#268BFF] hover:underline text-base leading-relaxed block text-left w-full cursor-pointer"
-            >
-              {item.question}
-            </button>
-          </li>
-        ))}
-      </ul>
+  {data.map((question, index) => (
+    <li key={index}>
+      <button
+        onClick={() => handleQuestionClick(question)}
+        className="text-[#268BFF] hover:underline text-base leading-relaxed block text-left w-full cursor-pointer"
+      >
+        {question}
+      </button>
+    </li>
+  ))}
+</ul>
     </div>
   );
 };

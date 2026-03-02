@@ -27,7 +27,7 @@ const SignIn = ({ keycloak }) => {
 
     try {
       // Get Keycloak token using Direct Access Grant (Resource Owner Password Credentials)
-      const tokenUrl = `${keycloak.authServerUrl}/realms/${keycloak.realm}/protocol/openid-connect/token`;
+      const tokenUrl = `${keycloak.url}/realms/${keycloak.realm}/protocol/openid-connect/token`;
       
       const params = new URLSearchParams();
       params.append('client_id', keycloak.clientId);
@@ -58,10 +58,9 @@ const SignIn = ({ keycloak }) => {
   };
 
   const handleSocialLogin = (provider) => {
-    // Redirect to Keycloak for social login with explicit redirect
+    // Redirect to Keycloak for social login
     keycloak.login({
       idpHint: provider, // 'google', 'facebook', 'apple'
-      redirectUri: window.location.origin + '/',
     });
   };
 
@@ -157,22 +156,13 @@ const SignIn = ({ keycloak }) => {
 
           {/* Social Login */}
           <div className="flex justify-center space-x-4">
-            <button
-              onClick={() => handleSocialLogin('google')}
-              className="border border-gray-300 rounded-lg p-2 hover:bg-gray-100 transition"
-            >
+            <button className="border border-gray-300 rounded-lg p-2 hover:bg-gray-100 transition">
               <FaGoogle className="text-xl" style={{ color: "#DB4437" }} />
             </button>
-            <button
-              onClick={() => handleSocialLogin('apple')}
-              className="border border-gray-300 rounded-lg p-2 hover:bg-gray-100 transition"
-            >
+            <button className="border border-gray-300 rounded-lg p-2 hover:bg-gray-100 transition">
               <FaApple className="text-xl text-black" />
             </button>
-            <button
-              onClick={() => handleSocialLogin('facebook')}
-              className="border border-gray-300 rounded-lg p-2 hover:bg-gray-100 transition"
-            >
+            <button className="border border-gray-300 rounded-lg p-2 hover:bg-gray-100 transition">
               <FaFacebook className="text-xl" style={{ color: "#1877F2" }} />
             </button>
           </div>
