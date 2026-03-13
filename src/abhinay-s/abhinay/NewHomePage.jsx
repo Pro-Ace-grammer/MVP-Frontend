@@ -496,7 +496,7 @@ const NewHomePage = () => {
                   </div>
                   {showLovedBy && (
                     <span className="text-[0.72rem]">
-                      Loved by {lovedByCount} Business and Founders
+                      Loved by Business and Founders
                     </span>
                   )}
                 </div>
@@ -525,8 +525,7 @@ const NewHomePage = () => {
 
             {/* Search Interface */}
 
-            {/* <NewChatbot /> */}
-             <Chatlisting />
+            <NewChatbot />
           </div>
         </div>
         {/* <div><p className='text-gray-600 text-center mb-6'>Structure of Business</p></div> */}

@@ -283,7 +283,7 @@ const NewChatbot = () => {
                 onChange={(e) => setQuery(e.target.value)}
                 onInput={handleInput}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask Anything (Industry / Company / Sector)"
+                placeholder="Search for franchises (e.g., ice-cream, pizza, coffee)..."
                 className="
                   w-full text-sm text-gray-700 placeholder-gray-400
                   bg-transparent outline-none border-none
