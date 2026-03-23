@@ -68,11 +68,12 @@ const Navbar = () => {
                 </ul>
 
                 {/* Desktop Button */}
-                <Link to="/signin">
-                    <button className="hidden md:inline bg-[#F26D20] text-white px-5 py-2 rounded-md font-medium cursor-pointer">
-                        Get started
-                    </button>
-                </Link>
+                <button 
+                    onClick={() => keycloak.login()}
+                    className="hidden md:inline bg-[#F26D20] text-white px-5 py-2 rounded-md font-medium cursor-pointer"
+                >
+                    Get started
+                </button>
                 {/* Hamburger */}
                 <div className="md:hidden">
                     {isOpen ? (

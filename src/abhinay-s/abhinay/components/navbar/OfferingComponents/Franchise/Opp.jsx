@@ -70,32 +70,22 @@ export const FoodFranchisePage = () => {
           </a>
         </div>
 
-        {/* Franchise Cards */}
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          {franchises.map((f, idx) => (
-            <div
-              key={idx}
-              className="rounded-2xl overflow-hidden relative shadow-md"
-            >
-              <img
-                src={f.img}
-                alt={f.name}
-                className="w-full h-44 sm:h-48 md:h-56 object-cover"
-              />
-              <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-4 text-white">
-                <h3 className="font-semibold text-lg">{f.name}</h3>
-                <p className="text-sm">{f.category}</p>
-                <button className="mt-2 bg-white text-black px-4 py-1 rounded-full self-start">
-                  Explore
-                </button>
-              </div>
-            </div>
-          ))}
-          {/* Placeholder Empty Card */}
-          {/* <div className="rounded-2xl border border-gray-200 bg-gray-50 h-48 flex items-center justify-center text-gray-300">
-            Empty Slot
-          </div> */}
-        </div>
+        <FcardGrid
+          items={franchises.map((f) => ({
+            title: f.name,
+            category: f.category,
+            logoUrl: f.img,
+            verified: true,
+            c: "#F3F4F6", // Neutral light gray for this section
+            stats: { 
+              space: "200-500 sqft", 
+              outlets: "20+", 
+              investment: "15-25L" 
+            }
+          }))}
+          className="py-4"
+          gridClassName="grid grid-cols-1 sm:grid-cols-2 gap-4"
+        />
       </div>
 
       {/* Right Sidebar */}

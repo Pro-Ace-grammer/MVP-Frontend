@@ -4,11 +4,10 @@ import NewChatbot from "./NewChatbot";
 import { Usables1, Usables2, Usables3 } from "../utils/Usables";
 import { PieChart, Expand, Puzzle } from "lucide-react";
 import { X } from "lucide-react";
-import Footernew from "@/abhinay-s/components/Footernew";
+import Footer from "@/hari/components/LemiciHomeComponents/Connect/Footer";
 import FloatingChatbot from "./FloatingChatbot";
 import { useChatbot } from "./ChatbotContext";
-import { getHomeMetrics } from "@/abhinay-s/lib/api";
-import Chatlisting from "./components/navbar/OfferingComponents/Franchise/Chatlisting";
+// import { getHomeMetrics } from "@/abhinay-s/lib/api";
 const GlowBackground = ({ brightness = 0.4 }) => {
   const containerStyle = {
     position: 'relative',
@@ -59,8 +58,91 @@ const GlowBackground = ({ brightness = 0.4 }) => {
     </div>
   );
 };
+
+/* Draggable Chat Button Helper */
+const DraggableChatButton = ({ onClick }) => {
+  const [position, setPosition] = React.useState({ x: 24, y: 32 }); // Bottom-left default
+  const [isDragging, setIsDragging] = React.useState(false);
+  const dragStartPos = React.useRef({ x: 0, y: 0 });
+  const buttonPosAtStart = React.useRef({ x: 0, y: 0 });
+  const hasMoved = React.useRef(false);
+
+  const startDrag = (clientX, clientY) => {
+    setIsDragging(true);
+    hasMoved.current = false;
+    dragStartPos.current = { x: clientX, y: clientY };
+    buttonPosAtStart.current = { x: position.x, y: position.y };
+  };
+
+  const onDrag = React.useCallback((clientX, clientY) => {
+    if (!isDragging) return;
+    const dx = clientX - dragStartPos.current.x;
+    const dy = clientY - dragStartPos.current.y;
+
+    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+      hasMoved.current = true;
+    }
+
+    // Update position - x is from left, y is from bottom
+    const newX = Math.max(0, Math.min(window.innerWidth - 64, buttonPosAtStart.current.x + dx));
+    const newY = Math.max(0, Math.min(window.innerHeight - 64, buttonPosAtStart.current.y - dy));
+
+    setPosition({ x: newX, y: newY });
+  }, [isDragging]);
+
+  const endDrag = React.useCallback(() => {
+    if (isDragging) {
+      setIsDragging(false);
+      if (!hasMoved.current) {
+        onClick();
+      }
+    }
+  }, [isDragging, onClick]);
+
+  // Global mouse/touch events
+  React.useEffect(() => {
+    const handleMouseMove = (e) => onDrag(e.clientX, e.clientY);
+    const handleTouchMove = (e) => onDrag(e.touches[0].clientX, e.touches[0].clientY);
+
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', endDrag);
+      window.addEventListener('touchmove', handleTouchMove, { passive: false });
+      window.addEventListener('touchend', endDrag);
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', endDrag);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', endDrag);
+    };
+  }, [isDragging, onDrag, endDrag]);
+
+  return (
+    <button
+      onMouseDown={(e) => startDrag(e.clientX, e.clientY)}
+      onTouchStart={(e) => startDrag(e.touches[0].clientX, e.touches[0].clientY)}
+      aria-label="Open chat"
+      className="fixed z-[9999] pointer-events-auto rounded-full p-2 hover:shadow-2xl transition transform hover:scale-105 active:scale-95 touch-none"
+      style={{
+        left: `${position.x}px`,
+        bottom: `${position.y}px`,
+        cursor: isDragging ? 'grabbing' : 'grab',
+        transition: isDragging ? 'none' : 'transform 0.2s, box-shadow 0.2s, left 0.1s, bottom 0.1s'
+      }}
+    >
+      <img
+        src="/abhinay/HomePageImages/kube.png"
+        alt="Open chat"
+        className="w-12 h-12 rounded-full border-5 border-[#9876b3] p-1 object-cover pointer-events-none select-none"
+      />
+    </button>
+  );
+};
+
 const PilotProgramSection = ({ showPricing, pricingInfo }) => {
   const [billing, setBilling] = useState("monthly");
+  const [activeAudience, setActiveAudience] = useState("Startups");
 
   /* Inline Card component */
   const Card = ({ children, accent, iconBg, outline }) => {
@@ -68,9 +150,8 @@ const PilotProgramSection = ({ showPricing, pricingInfo }) => {
       return (
         <div className={`relative overflow-hidden rounded-2xl p-6 ${accent}`}>
           <div
-            className={`absolute right-4 top-4 h-14 w-14 rounded-xl ${
-              iconBg || "bg-white/10"
-            }`}
+            className={`absolute right-4 top-4 h-14 w-14 rounded-xl ${iconBg || "bg-white/10"
+              }`}
           />
           <div className="relative">{children}</div>
         </div>
@@ -79,9 +160,8 @@ const PilotProgramSection = ({ showPricing, pricingInfo }) => {
 
     return (
       <div
-        className={`rounded-2xl p-6 ${
-          outline ? "border border-slate-200" : ""
-        }`}
+        className={`rounded-2xl p-6 ${outline ? "border border-slate-200" : ""
+          }`}
       >
         {children}
       </div>
@@ -90,18 +170,18 @@ const PilotProgramSection = ({ showPricing, pricingInfo }) => {
 
   return (
     <section className="w-full bg-white text-slate-900">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
+      <div className="mx-auto max-w-7xl py-10 lg:py-14">
         {/* Top grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 items-start">
           {/* Left: heading + copy + CTA */}
           <div>
-            <h1 className="text-4xl sm:text-5xl font-extrabold leading-tight tracking-tight">
+            <h1 className="text-[3.6rem] font-extrabold leading-tight tracking-tight">
               Join Our Pilot
               <br />
               Program
             </h1>
 
-            <p className="mt-5 max-w-2xl text-slate-600">
+            <p className="mt-10 max-w-2xl text-slate-600">
               Be among the first to harness the transformative power of LeMiCi.
               Our pilot offers unparalleled access to cutting‑edge market
               research data and deep economic insights. Drive innovation and
@@ -111,14 +191,15 @@ const PilotProgramSection = ({ showPricing, pricingInfo }) => {
 
             <button
               type="button"
-              className="mt-6 inline-flex items-center rounded-lg bg-[#6D3E93] px-6 py-2.5 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="mt-10 inline-flex items-center rounded-[16px] bg-[#6D3E93] px-10 py-3 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
             >
               Apply now
             </button>
           </div>
 
-          {/* Right: Offer card */}
-          <div className="flex flex-col gap-4">
+          {/* Right: Entirely Scrollable Column */}
+          <div className="flex flex-col gap-6 h-full max-h-[420px] overflow-y-auto custom-scrollbar pr-4">
+            {/* Offer Card */}
             <div className="rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 lg:p-7 bg-[#EDEDED]">
               <div className="flex items-center justify-between">
                 <p className="font-medium">Pilot program offer</p>
@@ -127,22 +208,20 @@ const PilotProgramSection = ({ showPricing, pricingInfo }) => {
                 <div className="relative flex bg-slate-100 rounded-full p-1 text-sm">
                   <button
                     onClick={() => setBilling("monthly")}
-                    className={`px-3 py-1.5 rounded-full transition-colors ${
-                      billing === "monthly"
-                        ? "bg-white shadow text-slate-900"
-                        : "text-slate-600"
-                    }`}
+                    className={`px-3 py-1.5 rounded-full transition-colors ${billing === "monthly"
+                      ? "bg-white shadow text-slate-900"
+                      : "text-slate-600"
+                      }`}
                     aria-pressed={billing === "monthly"}
                   >
                     Monthly
                   </button>
                   <button
                     onClick={() => setBilling("yearly")}
-                    className={`px-3 py-1.5 rounded-full transition-colors ${
-                      billing === "yearly"
-                        ? "bg-white shadow text-slate-900"
-                        : "text-slate-600"
-                    }`}
+                    className={`px-3 py-1.5 rounded-full transition-colors ${billing === "yearly"
+                      ? "bg-white shadow text-slate-900"
+                      : "text-slate-600"
+                      }`}
                     aria-pressed={billing === "yearly"}
                   >
                     Yearly
@@ -152,15 +231,14 @@ const PilotProgramSection = ({ showPricing, pricingInfo }) => {
 
               {showPricing && pricingInfo && (
                 <>
-                  <div className="mt-5">
-                    <a
-                      href="#apply"
-                      className="text-[#6D3E93] font-semibold hover:underline"
+                  <div className="mt-5 text-[23px]">
+                    <span
+                      className="text-[#6D3E93] font-inter font-semibold"
                     >
                       Sign up for the Pilot program now
-                    </a>
+                    </span>
 
-                    <span className="font-bold">
+                    <span className="font-inter font-bold">
                       &nbsp;&amp; get an <br />
                       exclusive {pricingInfo.discountPercentage}% discount on
                       your <br />
@@ -170,7 +248,7 @@ const PilotProgramSection = ({ showPricing, pricingInfo }) => {
 
                   <div className="mt-6 flex items-end gap-3 justify-between">
                     <p className="mt-2 text-slate-600 text-sm">
-                      Cost (per {billing === "monthly" ? "month" : "year"})
+                      Cost - ( {billing === "monthly" ? "999 / month" : "11,988 / year"})
                     </p>
 
                     <span className="text-3xl sm:text-4xl font-extrabold text-[#6D3E93]">
@@ -183,104 +261,162 @@ const PilotProgramSection = ({ showPricing, pricingInfo }) => {
                 </>
               )}
             </div>
-            <div>
-              <div className="mt-6 flex items-start gap-5">
-                <div className="mt-0.5 h-7 w-7 rounded-md bg-violet-100 text-violet-700 grid place-items-center">
-                  <IKImage
-                    path="/LeMiCi/HomePageImages/lock.png"
-                    alt=""
-                    loading="lazy"
-                  />
+
+            {/* Benefits List */}
+            <div className="flex-1 space-y-6">
+              {[
+                {
+                  title: "Exclusive Access",
+                  desc: "Early access to 10,000+ cutting‑edge technologies from leading sources across India.",
+                  icon: <div className="h-6 w-6 text-[#6D3E93]"><IKImage path="/HomePageImage/exclusive_access.png" alt="" loading="lazy" /></div>
+                },
+                {
+                  title: "Personalized support",
+                  desc: "Tailored technology matching, business plan creation, and interaction with legal experts, investors, and accelerators.",
+                  icon: <div className="h-6 w-6 text-[#6D3E93]"><IKImage path="/HomePageImage/personalized_support.png" alt="" loading="lazy" /></div>
+                },
+                {
+                  title: "Intelligent search and management",
+                  desc: "Search technologies by interest, create lists, get notification about new technologies and easily manage your technological interests.",
+                  icon: <div className="h-6 w-6 text-[#6D3E93]"><IKImage path="/HomePageImage/intel_search.png" alt="" loading="lazy" /></div>
+                },
+                {
+                  title: "Analysis and planning",
+                  desc: "In-depth analysis, implementation plans, and steps for successful commercialization.",
+                  icon: <div className="h-6 w-6 text-[#6D3E93]"><IKImage path="/HomePageImage/analysis.png" alt="" loading="lazy" /></div>
+                },
+                {
+                  title: "Business development and growth",
+                  desc: "Comprehensive support from company registration to scaling, including educational resources.",
+                  icon: <div className="h-6 w-6 text-[#6D3E93]"><IKImage path="/HomePageImage/busi_dev.png" alt="" loading="lazy" /></div>
+                },
+                {
+                  title: "Networking opportunities",
+                  desc: "Establish connection with entrepreneurs, corporations, and resources providers.",
+                  icon: <div className="h-6 w-6 text-[#6D3E93]"><IKImage path="/HomePageImage/network_opp.png" alt="" loading="lazy" /></div>
+                }
+              ].map((benefit, i) => (
+                <div key={i}>
+                  <div className="flex items-start gap-5">
+                    <div className="mt-1 flex-shrink-0">
+                      {benefit.icon}
+                    </div>
+                    <div>
+                      <p className="font-bold text-[#6D3E93] text-lg">
+                        {benefit.title}
+                      </p>
+                      <p className="text-slate-600 text-sm mt-1 leading-relaxed">
+                        {benefit.desc}
+                      </p>
+                    </div>
+                  </div>
+                  {i < 5 && <hr className="mt-6 border-slate-200" />}
                 </div>
-                <div>
-                  <p className="font-semibold text-[#6D3E93]">
-                    Exclusive Access
-                  </p>
-                  <p className="text-slate-600 text-sm">
-                    Early access to 10,000+ cutting‑edge technologies from
-                    leading sources across India.
-                  </p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
 
         {/* Audience tiles */}
-        <div className="mt-18 grid grid-cols-1 md:grid-cols-2 gap-5">
-          <Card accent="bg-[#6D3E93]" iconBg="bg-[#6D3E93]/30">
-            <IKImage
-              path="/HomePageImages/bluee.png"
-              alt="Startups"
-              className="w-8 h-8 mr-3 mb-2"
-              loading="lazy"
-            />
-            <div className="flex items-start">
-              <h3 className="text-white text-xl font-semibold">Startups</h3>
-            </div>
-            <ul className="list-disc mt-3 text-purple-100 text-sm space-y-2 ml-3">
-              <li>Gain clarity, fuel your growth.</li>
-              <li>Data‑driven decisions for rapid scaling.</li>
-            </ul>
-          </Card>
+        <div className="mt-40 grid grid-cols-1 md:grid-cols-2 gap-5">
+          {[
+            {
+              title: "Startups",
+              items: ["Gain clarity, fuel your growth.", "Data‑driven decisions for rapid scaling."],
+              icon: "/HomePageImage/startups.png"
+            },
+            {
+              title: "SMEs",
+              subtitle: "(Small‑Medium Enterprises)",
+              items: ["Optimize operations, enhance profitability.", "Smart insights for sustainable business expansion."],
+              icon: "/HomePageImage/smes.png"
+            },
+            {
+              title: "Researchers",
+              items: ["Access comprehensive, reliable data.", "Deepen analysis, validate your findings."],
+              icon: {
+                white: "/HomePageImage/researchers_white.png",
+                purple: "/HomePageImage/researchers_purp.png?updatedAt=1773511370383"
+              }
+            },
+            {
+              title: "Educators",
+              items: ["Empower learning with reliable data.", "Enhance curriculum, foster critical thinking."],
+              icon: "/HomePageImage/educators.png"
+            }
+          ].map((item, idx) => {
+            const isActive = activeAudience === item.title;
+            const isResearchers = item.title === "Researchers";
 
-          <Card outline>
-            <IKImage
-              path="/HomePageImages/two2.png"
-              alt="SMEs"
-              className="w-8 h-8 mr-3 mb-2"
-              loading="lazy"
-            />
-            <div className="flex items-start">
-              <h3 className="text-slate-900 text-xl font-semibold">
-                SMEs
-                <span className="text-slate-500 text-sm align-top">
-                  {" "}
-                  (Small‑Medium Enterprises)
-                </span>
-              </h3>
-            </div>
-            <ul className="mt-3 text-slate-600 text-sm space-y-2">
-              <li>Optimize operations, enhance profitability.</li>
-              <li>Smart insights for sustainable business expansion.</li>
-            </ul>
-          </Card>
+            return (
+              <div
+                key={idx}
+                onMouseEnter={() => setActiveAudience(item.title)}
+                className={`rounded-[28px] p-10 transition-all duration-300 cursor-pointer border-2 ${isActive
+                  ? "bg-[#6D3E93] text-white border-[#6D3E93] shadow-xl"
+                  : "bg-white text-slate-900 border-slate-100 hover:border-slate-200"
+                  }`}
+              >
+                <div className="flex justify-between items-start mb-4">
+                  <div className="h-12 w-12 flex items-center justify-center relative">
+                    {isResearchers ? (
+                      <>
+                        <IKImage
+                          path={item.icon.white}
+                          alt={`${item.title} white`}
+                          className={`h-full w-auto object-contain absolute inset-0 transition-opacity duration-200 ${isActive ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+                          loading="lazy"
+                        />
+                        <IKImage
+                          path={item.icon.purple}
+                          alt={`${item.title} purple`}
+                          className={`h-full w-auto object-contain absolute inset-0 transition-opacity duration-200 ${!isActive ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+                          loading="lazy"
+                        />
+                      </>
+                    ) : (
+                      <IKImage
+                        path={item.icon}
+                        alt={item.title}
+                        className="h-full w-auto object-contain"
+                        loading="lazy"
+                      />
+                    )}
+                  </div>
+                  {isActive && (
+                    <div className="opacity-20">
+                      {/* Optional: Add the background decorative icon seen in Figma for Startups */}
+                      {item.title === "Startups" && (
+                        <div className="absolute right-10 top-10 pointer-events-none">
+                          <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path opacity="0.3" d="M20 10V20M20 10H10M20 10C25 10 30 15 30 20M80 10V20M80 10H90M80 10C75 10 70 15 70 20M20 90V80M20 90H10M20 90C25 90 30 85 30 80M80 90V80M80 90H90M80 90C75 90 70 85 70 80" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                            <circle opacity="0.3" cx="50" cy="50" r="15" stroke="white" strokeWidth="4" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
 
-          <Card outline>
-            <IKImage
-              path="/HomePageImages/violeet.png"
-              alt="Researchers"
-              className="w-8 h-8 mr-3 mb-2"
-              loading="lazy"
-            />
-            <div className="flex items-start">
-              <h3 className="text-slate-900 text-xl font-semibold">
-                Researchers
-              </h3>
-            </div>
-            <ul className="mt-3 text-slate-600 text-sm space-y-2">
-              <li>Access comprehensive, reliable data.</li>
-              <li>Deepen analysis, validate findings.</li>
-            </ul>
-          </Card>
+                <h3 className={`font-inter font-bold text-4xl mb-4 ${isActive ? "text-white" : "text-slate-900"}`}>
+                  {item.title}
+                  {item.subtitle && (
+                    <span className={`text-xl ml-2 font-normal ${isActive ? "text-purple-200" : "text-slate-500"}`}>
+                      {item.subtitle}
+                    </span>
+                  )}
+                </h3>
 
-          <Card outline>
-            <IKImage
-              path="/HomePageImages/yellowsquare.png"
-              alt="Educators"
-              className="w-8 h-8 mr-3 mb-2"
-              loading="lazy"
-            />
-            <div className="flex items-start">
-              <h3 className="text-slate-900 text-xl font-semibold">
-                Educators
-              </h3>
-            </div>
-            <ul className="mt-3 text-slate-600 text-sm space-y-2">
-              <li>Empower learning with reliable data.</li>
-              <li>Enhance curriculum, foster critical thinking.</li>
-            </ul>
-          </Card>
+                <ul className={`space-y-2 list-disc ml-5 ${isActive ? "text-purple-100" : "text-slate-600"}`}>
+                  {item.items.map((bullet, bIdx) => (
+                    <li key={bIdx} className="text-lg">
+                      {bullet}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -296,13 +432,47 @@ const NewHomePage = () => {
 
   // Initialize speech recognition
 
-  const [stats, setStats] = useState([]);
-  const [cards1, setCards1] = useState([]);
-  const [pricingInfo, setPricingInfo] = useState(null);
-  const [lovedByCount, setLovedByCount] = useState(0);
+  const [cards1, setCards1] = useState([
+    {
+      bg: "bg-[#6D3E93]",
+      items: [
+        { number: "362K+", label: "Companies" },
+        { number: "334K+", label: "Unfunded" },
+        { number: "66.9K+", label: "Investors" }
+      ]
+    },
+    {
+      bg: "bg-[#14A79D]",
+      items: [
+        { number: "28.2K+", label: "Funded" },
+        { number: "115+", label: "Unicorns" },
+        { number: "620+", label: "Reports" }
+      ]
+    },
+    {
+      bg: "bg-[#F4B400]",
+      items: [
+        { number: "2.6K+", label: "Series A+" },
+        { number: "39.1K+", label: "Funding Rounds" },
+        { number: "47.6K+", label: "Financials" }
+      ]
+    },
+    {
+      bg: "bg-[#4E5BFF]",
+      items: [
+        { number: "805+", label: "Series C+" },
+        { number: "4.7K+", label: "Acquisitions" },
+        { number: "25.7K+", label: "Cap Tables" }
+      ]
+    }
+  ]);
+  const [pricingInfo, setPricingInfo] = useState({
+    discountPercentage: 20,
+    originalPrice: "5,000"
+  });
+  const [lovedByCount, setLovedByCount] = useState("1200+");
 
   // Flags (default TRUE as per your rules)
-  const [showStats, setShowStats] = useState(true);
   const [showCards, setShowCards] = useState(true);
   const [showLovedBy, setShowLovedBy] = useState(true);
   const [showPricing, setShowPricing] = useState(true);
@@ -332,27 +502,6 @@ const NewHomePage = () => {
 
       setSpeechSupported(true);
     }
-
-    const load = async () => {
-      try {
-        const data = await getHomeMetrics();
-        setStats(data.stats || []);
-        setCards1(data.cards || []);
-        setPricingInfo(data.pricingInfo || null);
-        setLovedByCount(data.lovedByCount || 0);
-
-        if (data.flags) {
-          if (typeof data.flags.showStats === "boolean") setShowStats(data.flags.showStats);
-          if (typeof data.flags.showCards === "boolean") setShowCards(data.flags.showCards);
-          if (typeof data.flags.showLovedBy === "boolean") setShowLovedBy(data.flags.showLovedBy);
-          if (typeof data.flags.showPricing === "boolean") setShowPricing(data.flags.showPricing);
-        }
-      } catch (err) {
-        console.error("Home metrics API failed", err);
-      }
-    };
-
-    load();
   }, []);
 
   const toggleListening = () => {
@@ -382,34 +531,57 @@ const NewHomePage = () => {
     {
       title: "Verified Database",
       desc: "Access to thoroughly verified and up-to-date information",
-      icon: "/verifieddstsbse.png",
+      icon: "/HomePageImage/verifieddstsbse.png",
     },
     {
       title: "Comprehensive Information",
       desc: "Complete data sets with detailed business insights",
-      icon: "/cii.png",
+      icon: "/HomePageImage/cii.png",
     },
     {
       title: "Targeted Reach",
       desc: "Precisely targeted data to reach your ideal audience",
-      icon: "/targetedresearch.png",
+      icon: "/HomePageImage/targetedresearch.png",
     },
     {
       title: "Lead Generation",
       desc: "Powerful tools to generate qualified leads efficiently",
-      icon: "/rocket.png",
+      icon: "/HomePageImage/rocket.png",
     },
     {
       title: "Multi Category Focus",
       desc: "Diverse data categories to meet various business needs",
-      icon: "/focud.png",
+      icon: "/HomePageImage/focud.png",
     },
     {
       title: "Data Enhancement",
       desc: "Advanced tools to enrich and optimize your data",
-      icon: "/dataen.png",
+      icon: "/HomePageImage/dataen.png",
     },
   ];
+
+  const stats = [
+    {
+      "label": "Data Points",
+      "value": "7B+",
+      "iconPath": "/HomePageImage/datapointss.png"
+    },
+    {
+      "label": "Technologies",
+      "value": "115+",
+      "iconPath": "/HomePageImage/techh.png"
+    },
+    {
+      "label": "Companies",
+      "value": "550K+",
+      "iconPath": "/HomePageImage/companies.png"
+    },
+    {
+      "label": "Contracts",
+      "value": "80K+",
+      "iconPath": "/HomePageImage/contracts.png"
+    }
+  ]
 
   const features = [
     "Reduce delivery time with custom templates",
@@ -455,13 +627,13 @@ const NewHomePage = () => {
         <div className="absolute inset-0 w-full h-full -z-10">
           <GlowBackground brightness={0.4} />
         </div>
-        
+
         <div className="py-8">
           <div className="max-w-4xl mx-auto px-6 text-center">
             <div
               className="bg-cover bg-center"
               style={{
-                
+
               }}
             >
               {/* Overlay */}
@@ -504,7 +676,7 @@ const NewHomePage = () => {
 
               {/* Main Heading */}
               <h1
-                className="font-space font-black w-full mt-2 max-w-4xl mx-auto text-6xl md:text-7xl mb-6 leading-[0.9] text-center"
+                className="font-space font-black w-full mt-2 max-w-4xl mx-auto text-[5.2rem] mb-6 leading-[0.9] text-center"
                 style={{ color: "#6D3E93" }}
               >
                 Seek{" "}
@@ -529,7 +701,7 @@ const NewHomePage = () => {
           </div>
         </div>
         {/* <div><p className='text-gray-600 text-center mb-6'>Structure of Business</p></div> */}
-        <div className="w-full flex justify-center px-2 sm:px-4 md:px-8 lg:px-2">
+        <div className="w-full flex justify-center px-2 sm:px-4 md:px-8 lg:px-2 mt-[30px]">
           <div
             className="w-full max-w-6xl mx-auto flex justify-center bg-white relative mt-16"
             style={{ minHeight: "400px" }}
@@ -620,8 +792,7 @@ const NewHomePage = () => {
           //                     </div>
           <FloatingChatbot />
         )}
-        
-        <div className="max-w-6xl bg-red-100 mx-auto overflow-x-hidden">
+        <div className="max-w-6xl bg-red-100 mx-auto overflow-x-hidden mt-[6rem]">
           <div className="w-full flex flex-col items-center py-16 px-6 md:px-20 text-center bg-white">
             {/* Title */}
             <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900">
@@ -641,21 +812,19 @@ const NewHomePage = () => {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-5 py-2 rounded-full font-medium transition-all ${
-                    activeTab === tab
-                      ? "border border-gray-800 text-gray-900"
-                      : "bg-gray-100 hover:bg-gray-200 text-gray-600"
-                  } ${
-                    tab === "Matchmaking"
+                  className={`px-5 py-2 rounded-full font-medium transition-all ${activeTab === tab
+                    ? "border border-gray-800 text-gray-900"
+                    : "bg-gray-100 hover:bg-gray-200 text-gray-600"
+                    } ${tab === "Matchmaking"
                       ? "bg-[rgba(158,130,255,0.3)]"
                       : tab === "Research"
-                      ? "bg-[rgba(205,153,255,0.3)]"
-                      : tab === "Network"
-                      ? "bg-[rgba(255,222,153,0.5)]"
-                      : tab === "Consulting"
-                      ? "bg-[rgba(153,243,255,0.5)]"
-                      : ""
-                  }`}
+                        ? "bg-[rgba(205,153,255,0.3)]"
+                        : tab === "Network"
+                          ? "bg-[rgba(255,222,153,0.5)]"
+                          : tab === "Consulting"
+                            ? "bg-[rgba(153,243,255,0.5)]"
+                            : ""
+                    }`}
                 >
                   {tab}
                 </button>
@@ -684,7 +853,7 @@ const NewHomePage = () => {
                 >
                   <div className="text-3xl">
                     <IKImage
-                      path={`/HomePageImages/${feature.icon.replace("/", "")}`}
+                      path={`${feature.icon}`}
                       alt="not available"
                       loading="lazy"
                     />
@@ -701,17 +870,17 @@ const NewHomePage = () => {
           </div>
         </div>
         <section className="w-full bg-white overflow-x-hidden">
-          <div className="mx-auto max-w-7xl px-6 py-16 lg:py-20">
+          <div className="mx-auto max-w-[1300px] px-1 py-13 lg:py-20">
             {/* 2-column responsive layout */}
-            <div className="grid items-center gap-10 lg:grid-cols-2">
+            <div className="grid items-center gap-7 lg:grid-cols-2">
               {/* Left: Heading + copy + stats */}
               <div>
-                <h2 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
+                <h1 className="text-[3.6rem] font-extrabold leading-[3.6rem] tracking-tight">
                   The Confidence in{" "}
                   <span className="text-[#6D3E93]">Knowing</span>
-                </h2>
+                </h1>
 
-                <p className="mt-6 max-w-xl text-base leading-7 text-gray-600">
+                <p className="mt-6 text-base leading-7 text-gray-600">
                   LeMiCi is your strategic intelligence partner. Our
                   comprehensive platform aggregates Indian economic, public, and
                   proprietary data, delivering the sharp insights you need to
@@ -720,55 +889,70 @@ const NewHomePage = () => {
                 </p>
 
                 {/* Stats row */}
-                {showStats && (
-                  <ul className="mt-10 grid grid-cols-2 gap-8 sm:grid-cols-4">
-                    {stats.map((s, index) => (
-                      <li key={index} className="flex flex-col items-start">
-                        <div className="flex items-center justify-center rounded-xl bg-gray-100 p-3">
-                          <IKImage
-                            path={s.iconPath}
-                            alt={s.label}
-                            loading="lazy"
-                          />
-                        </div>
+                <ul className="mt-20 grid grid-cols-2 gap-8 sm:grid-cols-4">
+                  {stats.map((s, index) => (
+                    <li key={index} className="flex flex-col items-center text-center">
+                      <div className="flex items-center justify-center h-16 mb-2">
+                        <IKImage
+                          path={s.iconPath}
+                          alt={s.label}
+                          loading="lazy"
+                          className="h-full w-auto object-contain"
+                        />
+                      </div>
 
-                        <span className="mt-4 text-sm font-medium text-gray-500">
-                          {s.label}
-                        </span>
+                      <span className="mt-2 text-sm font-inter text-gray-700 whitespace-nowrap">
+                        {s.label}
+                      </span>
 
-                        <span className="mt-1 text-2xl font-semibold text-gray-900">
-                          {s.value}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                      <span className="mt-1 text-3xl font-semibold text-gray-900">
+                        {s.value}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               </div>
 
               {/* Right: Image card */}
               <div className="relative">
-                <div className="overflow-hidden rounded-2xl ring-1 ring-black/5">
+                <div className="overflow-hidden mt-[10px] rounded-3xl ring-1 ring-black/5">
                   <IKImage
-                    path="/HomePageImages/bis.jpg"
+                    path="/HomePageImage/sec_conf_right_img.png"
                     alt="Abstract purple light waves"
-                    className="h-full w-full object-cover"
+                    className="h-[500px] w-full object-cover"
                   />
                 </div>
               </div>
             </div>
           </div>
         </section>
-        <div className="relative flex justify-center w-full">
-          <Usables3 />
 
-          {/* Overlay image on top-right */}
-          <IKImage
-            path="/HomePageImages/robo.png"
-            alt="Robot"
-            className="absolute right-50 top-[57%] -translate-y-1/2 w-[35rem] h-auto"
-          />
-        </div>
-        (
+        <section className="relative w-full flex justify-center py-12 px-4 mt-20">
+          <div className="relative w-[85%] max-w-[1300px] h-[600px] bg-[#F0EAF4] border-2 border-[#EDEDED] rounded-[24px] flex flex-col md:flex-row items-center shadow-lg pt-16 md:pt-0">
+            <div className="relative z-20 flex flex-col p-8 md:p-16 lg:p-20 md:w-1/2">
+              <div className="flex flex-col items-start relative mb-14 drop-shadow-md -mt-10 md:-mt-32 xl:-mt-40 xl:ml-5">
+                <div className="bg-[#6D3E93] text-white pl-16 md:pl-[88px] pr-8 md:pr-12 pt-10 pb-8 md:pb-10 rounded-[40px] md:rounded-[48px] w-full min-w-[320px] md:min-w-[480px]">
+                  <h2 className="font-inter font-extrabold text-4xl md:text-[56px] lg:text-[64px] leading-[1.05] tracking-tight">Innovate <br />Smarter, <br />not Harder</h2>
+                </div>
+                <div className="bg-[#6D3E93] text-white px-10 pt-[10px] md:pt-[4px] pb-10 md:pb-5 rounded-full relative ml-6 md:ml-12 -mt-4 md:-mt-6 w-max">
+                  <h2 className="font-inter font-bold text-[30px] md:text-[48px] lg:text-[52px] leading-[1.05] tracking-tight">with AI</h2>
+                  <svg className="absolute w-[36px] h-[44px] md:w-[46px] md:h-[54px] -bottom-[43px] md:-bottom-[53px] left-[50px] md:left-[60px]" viewBox="0 0 46 54" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0V43C0 49 7 51 10 46L46 0H0Z" fill="#6D3E93"></path></svg>
+                </div>
+              </div>
+              <div className="ml-6 md:ml-12">
+                <h3 className="font-inter font-bold text-5xl text-[#4433FF] mb-4 tracking-tighter">Raman AI</h3>
+                <p className="font-poppins text-base text-[#444444] leading-[150%] max-w-[265px] mb-8">One clear view of your Business brought together in one seamless platform.</p>
+                <button onClick={() => alert('Redirecting to Raman AI...')} className="w-[160px] h-[48px] bg-[#652C90] hover:bg-[#4a1d6d] transition-colors rounded-[16px] font-['Poppins'] font-semibold text-base text-white flex items-center justify-center">Learn more</button>
+              </div>
+            </div>
+
+            <div className="absolute inset-0 w-full h-full pointer-events-none z-10 flex justify-end items-end overflow-visible pb-12 pr-6 md:pr-10">
+              <img alt="Raman AI Robot" className="h-full max-h-[120%] w-auto object-contain object-right-bottom drop-shadow-2xl origin-bottom-right" src="https://ik.imagekit.io/lemiciiq/LeMiCi/HomePageImage/RamanAI.png" />
+            </div>
+          </div>
+        </section>
+
+
         <div className="flex flex-col items-center justify-center py-12 bg-white overflow-hidden">
           {/* Custom Animation Style */}
           <style>
@@ -778,74 +962,93 @@ const NewHomePage = () => {
             100% { transform: translateX(-50%); }
           }
           .animate-scroll-x {
-            animation: scrollX 12s linear infinite;
+            animation: scrollX 30s linear infinite;
+          }
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #6D3E93;
+            border-radius: 10px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #555;
           }
         `}
           </style>
 
-          {/* Logo */}
-          <h2 className="text-3xl font-semibold mb-10 text-[#5c5b8c]">
-            <span className="text-[#3cc6b9]">Lem</span>
-            <span className="text-[#f7941d]">i</span>
-            <span className="text-[#6f42c1]">ci</span>{" "}
-            <span className="text-[#f7941d]">way</span>
-          </h2>
+          {/* Logo Replacement */}
+          <div className="mt-20 mb-10 flex justify-center">
+            <img
+              src="https://ik.imagekit.io/lemiciiq/LeMiCi/HomePageImage/lemici_way_logo.png"
+              alt="Lemici Way Logo"
+              className="h-10 md:h-16 w-auto object-contain"
+            />
+          </div>
 
           {/* Animated Scrolling Cards Container */}
-          <div className="relative w-full overflow-hidden">
-            <div className="flex animate-scroll-x gap-6 px-6">
+          <div className="relative w-full overflow-hidden py-10">
+            <div className="flex animate-scroll-x gap-10 w-max">
               {/* Repeat twice for seamless loop */}
               {[...Array(2)].map((_, index) => (
-                <React.Fragment key={index}>
+                <div key={index} className="flex gap-10 px-5">
                   {/* Card 1 */}
-                  <div className="bg-[#EAD9FF] rounded-3xl shadow-md p-8 w-80 h-80 flex-shrink-0 text-center flex flex-col justify-center">
-                    <div className="flex justify-center mb-4">
+                  <div className="bg-[rgba(234,217,255,0.6)] rounded-[48px] p-12 w-[480px] h-[480px] flex-shrink-0 text-center flex flex-col items-center justify-center border-2 border-[#6D3E93] transition-transform hover:scale-[1.02] duration-300">
+                    <div className="flex justify-center mb-8 h-28 items-center">
                       <IKImage
-                        path="/HomePageImages/sub.png" // 👈 replace this with your PNG path
+                        path="/HomePageImage/sub.png"
                         alt="One Stop Platform"
-                        className="w-16 h-16 object-contain"
+                        className="h-full w-auto object-contain"
                       />
                     </div>
-                    <h3 className="text-xl font-bold mb-2">
+                    <h3 className="text-3xl font-extrabold mb-4 text-gray-900 leading-tight">
                       One Stop Platform
                     </h3>
-                    <p className="text-gray-600 text-sm">
+                    <p className="text-gray-600 text-xl leading-relaxed max-w-[340px]">
                       Unified B2B Intelligence and services, all in one hub.
                     </p>
                   </div>
 
                   {/* Card 2 */}
-                  <div className="bg-[#C4F2ED] rounded-3xl shadow-md p-8 w-80 h-80 flex-shrink-0 text-center flex flex-col justify-center">
-                    <div className="flex justify-center mb-4">
-                      <Expand className="w-12 h-12 text-[#00a896]" />
+                  <div className="bg-[rgba(196,242,237,0.6)] rounded-[48px] p-12 w-[480px] h-[480px] flex-shrink-0 text-center flex flex-col items-center justify-center border-2 border-[#14A79D] transition-transform hover:scale-[1.02] duration-300">
+                    <div className="flex justify-center mb-8 h-28 items-center">
+                      <IKImage
+                        path="/HomePageImage/lem_way_FnS.png"
+                        alt="Flexible & Scalable"
+                        className="h-full w-auto object-contain"
+                      />
                     </div>
-                    <h3 className="text-xl font-bold mb-2">
+                    <h3 className="text-3xl font-extrabold mb-4 text-gray-900 leading-tight">
                       Flexible & Scalable
                     </h3>
-                    <p className="text-gray-600 text-sm">
+                    <p className="text-gray-600 text-xl leading-relaxed max-w-[340px]">
                       Grow with agility, without limits. Adaptable platform,
                       future-ready.
                     </p>
                   </div>
 
                   {/* Card 3 */}
-                  <div className="bg-[#FFE8B2] rounded-3xl shadow-md p-8 w-80 h-80 flex-shrink-0 text-center flex flex-col justify-center">
-                    <div className="flex justify-center mb-4">
+                  <div className="bg-[rgba(255,232,178,0.6)] rounded-[48px] p-12 w-[480px] h-[480px] flex-shrink-0 text-center flex flex-col items-center justify-center border-2 border-[#F4B400] transition-transform hover:scale-[1.02] duration-300">
+                    <div className="flex justify-center mb-8 h-28 items-center">
                       <IKImage
-                        path="/HomePageImages/gamee.png" // 👈 replace this with your PNG path
-                        alt="One Stop Platform"
-                        className="w-16 h-16 object-contain"
+                        path="/HomePageImage/gamee.png"
+                        alt="Seamless Integration"
+                        className="h-full w-auto object-contain"
                       />
                     </div>
-                    <h3 className="text-xl font-bold mb-2">
+                    <h3 className="text-3xl font-extrabold mb-4 text-gray-900 leading-tight">
                       Seamless Integration
                     </h3>
-                    <p className="text-gray-600 text-sm">
+                    <p className="text-gray-600 text-xl leading-relaxed max-w-[340px]">
                       Effortless data flow, unified insights. Integrate systems,
                       simplify operations.
                     </p>
                   </div>
-                </React.Fragment>
+                </div>
               ))}
             </div>
           </div>
@@ -854,10 +1057,10 @@ const NewHomePage = () => {
           showPricing={showPricing}
           pricingInfo={pricingInfo}
         />
-        <section className="w-full bg-white">
+        <section className="w-full mt-32 bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
             {/* Title */}
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-center">
+            <h2 className="text-3xl sm:text-4xl lg:text-6xl leading-20 font-extrabold tracking-tight text-center">
               Get in-depth coverage across <br /> various{" "}
               <span className="text-[#6D3E93]">geographies</span>,{" "}
               <span className="text-[#6D3E93]">industries</span> <br />
@@ -907,7 +1110,7 @@ const NewHomePage = () => {
             </div>
           </div>
         </section>
-        <section className="w-full px-4 sm:px-6 lg:px-8">
+        <section className="w-full mt-30 px-4 sm:px-6 lg:px-8">
           <div
             className="
           relative overflow-hidden rounded-[28px]
@@ -919,7 +1122,7 @@ const NewHomePage = () => {
         "
           >
             <IKImage
-              path="/HomePageImages/bgimage.png"
+              path="/HomePageImage/transform_Section_bg.png"
               alt="Overlay"
               className="absolute inset-0 w-full h-full object-cover pointer-events-none"
             />
@@ -996,33 +1199,23 @@ const NewHomePage = () => {
       </div>
       {/* Floating bottom-left chat button (hidden while chatbot is open) */}
       {!showChatbot && (
-        <button
-          onClick={() => setShowChatbot(true)}
-          aria-label="Open chat"
-          className="fixed left-4 bottom-6 md:left-6 md:bottom-8 z-50 pointer-events-auto bg- rounded-full p-2 hover:shadow-2xl transition transform hover:scale-105"
-        >
-          <img
-            src="/abhinay/HomePageImages/kube.png"
-            alt="Open chat"
-            className="w-12 h-12 rounded-full border-5 border-[#9876b3] p-1 object-cover"
-          />
-        </button>
+        <DraggableChatButton onClick={() => setShowChatbot(true)} />
       )}
 
       {/* Floating bottom-right dashboard button */}
       <button
         onClick={() => (window.location.href = "/dashboard")}
         aria-label="Go to Dashboard"
-        className="fixed right-4 bottom-6 md:right-6 md:bottom-8 z-50 pointer-events-auto bg- rounded-full p-2 hover:shadow-2xl transition transform hover:scale-105"
+        className="fixed right-4 bottom-6 md:right-6 md:bottom-8 z-[9999] pointer-events-auto bg- rounded-full p-2 hover:shadow-2xl transition transform hover:scale-105"
       >
         <IKImage
-          path="/HomePageImages/dashb.jpg"
+          path="/HomePageImage/dashb.jpg"
           alt="Go to Dashboard"
           className="w-12 h-12 rounded-full border-5 border-[#9876b3] p-1 object-cover"
         />
       </button>
 
-      <Footernew />
+      <Footer />
     </div>
   );
 };

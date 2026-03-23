@@ -9,7 +9,7 @@
     "backend": "nodemon server.js",
     "raw": "nodemon raw.js",
     "proxy": "nodemon proxy.js",
-    "keycloak": "docker run --name keycloak-lemici -p 8080:8080 -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin -v keycloak_data:/opt/keycloak/data quay.io/keycloak/keycloak:26.0 start-dev",
+    "keycloak": "docker run --name keycloak-lemici -p 8080:8080 -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin -v keycloak_data:/opt/keycloak/data -v \"%CD%\\keycloak-theme:/opt/keycloak/themes\" quay.io/keycloak/keycloak:26.0 start-dev",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"

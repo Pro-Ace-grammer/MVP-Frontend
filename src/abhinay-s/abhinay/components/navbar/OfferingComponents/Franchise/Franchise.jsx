@@ -156,7 +156,8 @@ const [exploreCategoriesData, setExploreCategoriesData] = useState(null);
 useEffect(() => {
   fetchFranchiseHome()
     .then((res) => {
-      if (!res.success) return;
+      // The API response structure changed; we now expect res.data.sections directly
+      if (!res || !res.data) return;
 
       const sections = res.data?.sections || [];
       // HERO

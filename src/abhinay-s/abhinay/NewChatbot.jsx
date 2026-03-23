@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Search, User, Eye, Filter, Settings, Menu, X } from 'lucide-react';
+import {
+  getHomeMetrics,
+  getStartupsData,
+  getStartupsFlags,
+  searchFranchise
+} from '@/abhinay-s/lib/api';
 import { useNavigate } from 'react-router-dom';
 import { Toaster, toast } from 'react-hot-toast';
 
@@ -65,7 +71,7 @@ const NewChatbot = () => {
         'franchise cost'
       ]
     },
-    
+
   ]), []);
 
   const resolveRoute = useCallback((text) => {
@@ -76,30 +82,30 @@ const NewChatbot = () => {
     if (q.startsWith('/')) {
       return q; // trust explicit route input
     }
-    
+
     // Check if query contains "franchise" keyword
     const hasFranchiseKeyword = q.includes('franchise');
-    
+
     // If franchise keyword exists but not food or golf, show unavailable message
-    if (hasFranchiseKeyword && q.includes('food') && 
-        q.includes('golf')) {
+    if (hasFranchiseKeyword && q.includes('food') &&
+      q.includes('golf')) {
       // Check if it's a specific category franchise query (not just generic "franchise")
-      const franchiseGeneralKeys = ['franchise ideas', 'franchise opportunities', 'franchise business', 
-                                   'franchise investment', 'franchise setup', 'franchise cost', 
-                                   'franchising', 'franchise'];
+      const franchiseGeneralKeys = ['franchise ideas', 'franchise opportunities', 'franchise business',
+        'franchise investment', 'franchise setup', 'franchise cost',
+        'franchising', 'franchise'];
       const isGeneralFranchise = franchiseGeneralKeys.some(k => q === k || q === k + 's');
-      
+
       if (!isGeneralFranchise) {
         // Extract potential category name (word before or after "franchise")
         const words = q.split(/\s+/);
         const franchiseIndex = words.findIndex(w => w.includes('franchise'));
-        const category = franchiseIndex > 0 ? words[franchiseIndex - 1] : 
-                        franchiseIndex < words.length - 1 ? words[franchiseIndex + 1] : 'requested';
+        const category = franchiseIndex > 0 ? words[franchiseIndex - 1] :
+          franchiseIndex < words.length - 1 ? words[franchiseIndex + 1] : 'requested';
         toast.error(`Sorry, ${category.charAt(0).toUpperCase() + category.slice(1)} franchise data is not available at the moment. We currently have data for Food and Golf franchises only.`);
         return 'UNAVAILABLE';
       }
     }
-    
+
     for (const { path, keys, requiresSecondary } of intentMatchers) {
       const hasKeyMatch = keys.some((k) => q.includes(k));
       if (hasKeyMatch) {
@@ -128,18 +134,10 @@ const NewChatbot = () => {
   }, [intentMatchers]);
 
   const handleSubmit = useCallback(() => {
-    const route = resolveRoute(query);
-    if (route === 'UNAVAILABLE') {
-      // Error message already shown in resolveRoute
-      return;
+    if (query.trim()) {
+      navigate(`/franchise/searchlistingpage/${query}`);
     }
-    if (route) {
-      navigate(route);
-    } else {
-      console.info('NewChatbot: No matching page for query ->', query);
-      toast("I couldn't find a matching page. Try keywords like 'franchise', 'investment', 'govt schemes', 'products', 'offers', 'compliance', 'partnership', 'training', 'account', or 'support'.");
-    }
-  }, [navigate, query, resolveRoute]);
+  }, [navigate, query]);
 
   const handleKeyDown = useCallback((e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -249,7 +247,7 @@ const NewChatbot = () => {
       console.debug('Speech start/stop error:', e);
     }
   }, [isListening]);
- const textareaRef = useRef(null);
+  const textareaRef = useRef(null);
   const DEFAULT_HEIGHT = 71; // px
   const MAX_HEIGHT = 171; // px (you can change)
 
@@ -265,56 +263,55 @@ const NewChatbot = () => {
     el.style.height =
       Math.min(el.scrollHeight, MAX_HEIGHT) + "px";
   };
-  
+
   return (
     <>
       <Toaster position="bottom-center" />
-         <div className="max-w-2xl mx-auto px-4 py-2 shadow-xl rounded-[48px] border border-gray-300 bg-transparent">
-      <div className="relative rounded-3xl px-4 py-2">
-        <div className="flex flex-col gap-2">
-          {/* INPUT ROW */}
-          <div className="flex items-center">
-            {/* TEXTAREA */}
-            <div className="flex-[0.8] flex items-center">
-              <textarea
-                ref={textareaRef}
-                rows={1}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onInput={handleInput}
-                onKeyDown={handleKeyDown}
-                placeholder="Search for franchises (e.g., ice-cream, pizza, coffee)..."
-                className="
-                  w-full text-sm text-gray-700 placeholder-gray-400
-                  bg-transparent outline-none border-none
-                  resize-none overflow-y-auto
-                  leading-5
-                  flex items-center
-                "
-                style={{
-                  minHeight: `${DEFAULT_HEIGHT}px`,
-                  maxHeight: `${MAX_HEIGHT}px`,
-                  paddingTop: '40px'
-                }}
-              />
-            </div>
+      <div className="max-w-2xl mx-auto px-4 py-2 shadow-xl rounded-[48px] border border-gray-300 bg-transparent">
+        <div className="relative rounded-3xl px-4 py-2">
+          <div className="flex flex-col gap-2">
+            {/* INPUT ROW */}
+            <div className="flex items-center">
+              {/* TEXTAREA */}
+              <div className="flex-[0.8] flex items-center">
+                <textarea
+                  ref={textareaRef}
+                  rows={1}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onInput={handleInput}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Search for franchises (e.g., ice-cream, pizza, coffee)..."
+                  className="
+                    w-full text-sm text-gray-700 placeholder-gray-400
+                    bg-transparent outline-none border-none
+                    resize-none overflow-y-auto
+                    leading-5 flex items-center
+                  "
+                  style={{
+                    minHeight: `${DEFAULT_HEIGHT}px`,
+                    maxHeight: `${MAX_HEIGHT}px`,
+                    paddingTop: '28px'
+                  }}
+                />
+              </div>
 
-            {/* ACTION BUTTONS */}
-            <div className="flex-[0.2] flex items-center justify-end gap-2 mt-6">
-              {/* MIC */}
-              <button
-                title="Speak your query"
-                className="p-2 rounded-md cursor-pointer hover:bg-gray-100 transition"
-              >
-                <svg
-                  width="14"
-                  height="20"
-                  viewBox="0 0 14 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+              {/* ACTION BUTTONS */}
+              <div className="flex-[0.2] flex items-center justify-end gap-2">
+                {/* MIC */}
+                <button
+                  title="Speak your query"
+                  className="p-2 rounded-md cursor-pointer hover:bg-gray-100 transition"
                 >
-                  <path
-                    d="M7 19V16.5M7 16.5C5.4 16.5 3.9 15.9 2.8 14.6
+                  <svg
+                    width="14"
+                    height="20"
+                    viewBox="0 0 14 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M7 19V16.5M7 16.5C5.4 16.5 3.9 15.9 2.8 14.6
                     C1.6 13.4 1 11.7 1 10
                     M7 16.5C8.6 16.5 10.1 15.9 11.2 14.6
                     C12.4 13.4 13 11.7 13 10
@@ -322,68 +319,70 @@ const NewChatbot = () => {
                     C3.3 2.8 4.9 1 7 1
                     C9.1 1 10.8 2.8 10.8 5V10.1
                     C10.8 12.3 9.1 14.1 7 14.1Z"
-                    stroke="black"
-                    strokeOpacity="0.3"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
+                      stroke="black"
+                      strokeOpacity="0.3"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
 
-              {/* SEND / CUBE */}
-              <button className="cursor-pointer" onClick={handleSubmit}>
-                <div className="w-[46px] h-[46px] bg-white rounded-sm flex items-center justify-center p-1 opacity-90">
-                  <img
-                    src="/abhinay/HomePageImages/cube.png"
-                    alt="send"
-                    className="w-9 h-9 object-contain"
-                  />
-                </div>
-              </button>
-            </div>
-          </div>
-
-          {/* ICON ROW */}
-          <div className="flex items-center gap-1 mt-1">
-            <div className="flex items-center bg-[#e8f6f6] rounded-[6px]">
-              <img
-                src="/abhinay/aaaa.png"
-                alt="A"
-                className="w-8 h-8 px-1 rounded-[6px] cursor-pointer hover:bg-white transition"
-              />
+                {/* SEND / CUBE */}
+                <button className="cursor-pointer" onClick={handleSubmit}>
+                  <div className="w-[46px] h-[46px] bg-white rounded-sm flex items-center justify-center p-1 opacity-90">
+                    <img
+                      src="/abhinay/HomePageImages/cube.png"
+                      alt="send"
+                      className="w-9 h-9 object-contain"
+                    />
+                  </div>
+                </button>
+              </div>
             </div>
 
-            <div className="flex items-center gap-1 bg-[#FCEFE0] rounded-[6px] px-1">
-              <img
-                src="/abhinay/bbbb.png"
-                alt="B"
-                className="w-6 h-8 p-1 rounded-[6px] cursor-pointer hover:bg-white transition"
-              />
-              <img
-                src="/abhinay/cccc.png"
-                alt="C"
-                className="w-8 h-8 p-1 rounded-[6px] cursor-pointer hover:bg-white transition"
-              />
-            </div>
+            {/* ICON ROW */}
+            <div className="flex items-center gap-1 mt-1">
+              <div className="flex items-center bg-[#e8f6f6] rounded-[6px]">
+                <img
+                  src="/abhinay/aaaa.png"
+                  alt="A"
+                  className="w-8 h-8 px-1 rounded-[6px] cursor-pointer hover:bg-white transition"
+                />
+              </div>
 
-            <div className="flex items-center gap-1 bg-[#F0EAF4] rounded-[6px] px-1">
-              <img
-                src="/abhinay/dddd.png"
-                alt="D"
-                className="w-8 h-8 p-1 rounded-[6px] cursor-pointer hover:bg-white transition"
-              />
-              <img
-                src="/abhinay/eeee.png"
-                alt="E"
-                className="w-8 h-8 p-1 rounded-[6px] cursor-pointer hover:bg-white transition"
-              />
+              <div className="flex items-center gap-1 bg-[#FCEFE0] rounded-[6px] px-1">
+                <img
+                  src="https://ik.imagekit.io/lemiciiq/LeMiCi/location.png?updatedAt=1772785333478"
+                  alt="B"
+                  className="w-8 h-8 p-1 rounded-[6px] cursor-pointer hover:bg-white transition"
+                />
+
+                <img
+                  src="/abhinay/cccc.png"
+                  alt="C"
+                  className="w-8 h-8 p-1 rounded-[6px] cursor-pointer hover:bg-white transition"
+                />
+
+              </div>
+
+              <div className="flex items-center gap-1 bg-[#F0EAF4] rounded-[6px] px-1">
+                <img
+                  src="/abhinay/dddd.png"
+                  alt="D"
+                  className="w-8 h-8 p-1 rounded-[6px] cursor-pointer hover:bg-white transition"
+                />
+                <img
+                  src="/abhinay/eeee.png"
+                  alt="E"
+                  className="w-8 h-8 p-1 rounded-[6px] cursor-pointer hover:bg-white transition"
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-      
+
     </>
   );
 };

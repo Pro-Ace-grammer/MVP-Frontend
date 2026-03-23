@@ -26,13 +26,13 @@ const Hero = ({ data }) => {
         return (
           <div
             key={brand.brandId}
-            className={`${sizeClass} rounded-full bg-white shadow-md flex items-center justify-center p-2 sm:p-3 hover:shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer`}
+            className={`${sizeClass} rounded-full bg-white shadow-md flex items-center justify-center hover:shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer`}
             title={brand.name}
             onClick={() => navigate(`/franchise/details/${brand.slug || 'chai-point'}`)}
           >
             <IKImage
-              
-              path={brand.logo.url}
+
+              path={brand.logo.circle}
               alt={brand.logo.alt}
               className="max-w-full max-h-full object-contain"
               loading="lazy"

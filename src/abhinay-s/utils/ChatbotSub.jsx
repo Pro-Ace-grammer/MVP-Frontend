@@ -146,8 +146,8 @@ Important: Return ONLY the JSON object, no markdown, no extra text.
 User Query:`;
 
 const promptsArray = {
-  franchise: franchisePrompt,
-  startups: startupsZonePrompt
+    franchise: franchisePrompt,
+    startups: startupsZonePrompt
 }
 // Component Renderers for structured responses
 
@@ -328,8 +328,8 @@ const TextContent = ({ data }) => (
  * @param {string} props.context - Context/domain for the chatbot (e.g., 'franchise', 'investment', 'products')
  * @param {Array} props.quickActions - Array of quick action buttons {icon: string, label: string, action: function}
  */
-const ChatbotSub = ({ 
-    placeholder = "Ask me anything...", 
+const ChatbotSub = ({
+    placeholder = "Ask me anything...",
     context = "general",
     quickActions = [],
     initialQuery = "",
@@ -455,7 +455,7 @@ const ChatbotSub = ({
                 .replace(/```json\n?/g, '')
                 .replace(/```\n?/g, '')
                 .trim();
-            
+
             const parsed = JSON.parse(cleanedText);
             return parsed;
         } catch (e) {
@@ -498,7 +498,7 @@ const ChatbotSub = ({
             }
 
             const data = await response.json();
-            
+
             return {
                 answer: data.answer || '',
                 results: data.results?.map(result => ({
@@ -522,7 +522,7 @@ const ChatbotSub = ({
             toast.error('Claude API key not configured');
             return;
         }
-        
+
         if (!tavilyApiKey) {
             toast.error('Tavily API key not configured');
             return;
@@ -533,7 +533,7 @@ const ChatbotSub = ({
             content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
         }));
 
-        const contextualInstruction = context !== 'general' 
+        const contextualInstruction = context !== 'general'
             ? `Context: This query is related to ${context}. Please tailor your response accordingly.\n\n`
             : '';
         // respective pages for prompts
@@ -582,10 +582,10 @@ const ChatbotSub = ({
             }
 
             const data = await response.json();
-            
+
             if (data.stop_reason === 'tool_use') {
                 const toolUse = data.content.find(block => block.type === 'tool_use');
-                
+
                 if (toolUse && toolUse.name === 'web_search') {
                     const searchQuery = toolUse.input.query;
                     setMessages(prev => [...prev, {
@@ -595,7 +595,7 @@ const ChatbotSub = ({
                     }]);
 
                     const searchResults = await performWebSearch(searchQuery);
-                    
+
                     conversationHistory.push({
                         role: 'assistant',
                         content: data.content
@@ -634,7 +634,7 @@ const ChatbotSub = ({
 
                     const finalData = await finalResponse.json();
                     const textBlock = finalData.content?.find(block => block.type === 'text');
-                    
+
                     if (!textBlock || !textBlock.text) {
                         setMessages(prev => {
                             const filtered = prev.filter(msg => !msg.isSearching);
@@ -661,9 +661,9 @@ const ChatbotSub = ({
                     });
                 }
             } else {
-                const assistantMessage = data.content.find(block => block.type === 'text')?.text || 
-                                        'Sorry, I could not generate a response.';
-                
+                const assistantMessage = data.content.find(block => block.type === 'text')?.text ||
+                    'Sorry, I could not generate a response.';
+
                 setMessages(prev => [...prev, {
                     role: 'assistant',
                     content: parseStructuredResponse(assistantMessage),
@@ -695,7 +695,7 @@ const ChatbotSub = ({
     };
 
     const handleSubmit = async () => {
-    console.log(context);
+        console.log(context);
         const q = query.trim();
         if (!q || isGenerating) return;
 
@@ -743,133 +743,133 @@ const ChatbotSub = ({
         } else {
             document.body.style.overflow = 'unset';
         }
-        
+
         return () => {
             document.body.style.overflow = 'unset';
         };
     }, [showModal]);
 
     return (
-       <>
-             <Toaster position="bottom-center" />
-             <div className="max-w-2xl px-4 py-3 mx-auto shadow-xl rounded-[64px]  border-gray-300 border-t-1">
-               <div className="relative bg-white rounded-3xl px-5 py-2  mt-7">
-                 {/* Main layout: top row (input + mic/send), bottom row (quick icons) */}
-                 <div className="flex flex-col gap-3">
-                   {/* Top row: input aligned with mic + send */}
-                   <div className="flex items-center gap-0">
-                     {/* Input: 80% */}
-                     <div className="flex-[0.8]">
-                       <div className="flex items-center">
-                         <input
-                            ref={inputRef}
-                                type="text"
-                                placeholder={placeholder}
-                                className="flex-1 text-gray-700 placeholder-gray-400 bg-transparent border-none outline-none text-base"
-                                value={query}
-                                onChange={(e) => setQuery(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                                disabled={isGenerating}
-                         />
-                       </div>
-                     </div>
-       
-                     {/* Right section: 20% - mic + send buttons */}
-                     <div className="flex-[0.2] flex items-center justify-end gap-2">
-                       <button
-                         onClick={toggleListening}
-                         disabled={!speechSupported}
-                         title={
-                           speechSupported
-                             ? isListening
-                               ? "Listening… click to stop"
-                               : "Speak your query"
-                             : "Voice input not supported"
-                         }
-                         className={`rounded-md p-2 transition-colors flex items-center justify-center ${isListening ? "bg-red-100" : "bg-transparent"
-                           } ${!speechSupported
-                             ? "opacity-50 cursor-not-allowed"
-                             : "cursor-pointer"
-                           }`}
-                       >
-                         <svg
-                           width="14"
-                           height="20"
-                           viewBox="0 0 14 20"
-                           fill="none"
-                           xmlns="http://www.w3.org/2000/svg"
-                         >
-                           <path
-                             d="M7 19V16.5455M7 16.5455C5.4087 16.5455 3.88258 15.8558 2.75736 14.6283C1.63214 13.4008 1 11.736 1 10M7 16.5455C8.5913 16.5455 10.1174 15.8558 11.2426 14.6283C12.3679 13.4008 13 11.736 13 10M7 14.0909C4.9375 14.0909 3.25 12.3138 3.25 10.1407V4.95018C3.25 2.77709 4.9375 1 7 1C9.0625 1 10.75 2.77709 10.75 4.95018V10.1407C10.75 12.3138 9.0625 14.0909 7 14.0909Z"
-                             stroke={isListening ? "#ef4444" : "black"}
-                             strokeOpacity={isListening ? "0.8" : "0.3"}
-                             strokeWidth="1.5"
-                             strokeLinecap="round"
-                             strokeLinejoin="round"
-                           />
-                         </svg>
-                       </button>
-       
-                        <button onClick={handleSubmit} disabled={isGenerating || !query.trim()} aria-label="Submit query">
+        <>
+            <Toaster position="bottom-center" />
+            <div className="max-w-2xl px-4 py-3 mx-auto shadow-xl rounded-[64px]  border-gray-300 border-t-1">
+                <div className="relative bg-white rounded-3xl px-5 py-2  mt-7">
+                    {/* Main layout: top row (input + mic/send), bottom row (quick icons) */}
+                    <div className="flex flex-col gap-3">
+                        {/* Top row: input aligned with mic + send */}
+                        <div className="flex items-center gap-0">
+                            {/* Input: 80% */}
+                            <div className="flex-[0.8]">
+                                <div className="flex items-center">
+                                    <input
+                                        ref={inputRef}
+                                        type="text"
+                                        placeholder={placeholder}
+                                        className="flex-1 text-gray-700 placeholder-gray-400 bg-transparent border-none outline-none text-base"
+                                        value={query}
+                                        onChange={(e) => setQuery(e.target.value)}
+                                        onKeyDown={handleKeyDown}
+                                        disabled={isGenerating}
+                                    />
+                                </div>
+                            </div>
 
-                         <div className="w-7 h-7 bg-white rounded-sm opacity-90 flex items-center justify-center cursor-pointer p-1">
-                           <img
-                             src="/abhinay/HomePageImages/cube.png"
-                             alt="send"
-                             className="w-5 h-5 object-contain"
-                           />
-                         </div>
-                       </button>
-                     </div>
-                   </div>
-       
-                   {/* Bottom row: Quick-go icons */}
-                   <div className="flex items-center gap-1 mt-2">
-                     <div className="flex items-center bg-[#e8f6f6] rounded-[6px]">
-                       <img
-                         onClick={() => quickGo("show offerings")}
-                         className="hover:bg-white rounded-[6px] p-1 transition-colors cursor-pointer w-8 h-8"
-                         src="/abhinay/aaaa.png"
-                         alt="Icon A"
-                       />
-                     </div>
-       
-                     <div className="flex items-center gap-1 bg-[#FCEFE0] rounded-[6px] p-1">
-                       <img
-                         onClick={() => quickGo("pricing plans")}
-                         className="hover:bg-white rounded-[6px] p-1 transition-colors cursor-pointer w-6 h-6"
-                         src="/abhinay/bbbb.png"
-                         alt="Icon B"
-                       />
-                       <img
-                         onClick={() => quickGo("startups zone")}
-                         className="hover:bg-white rounded-[6px] p-1 transition-colors cursor-pointer w-6 h-6"
-                         src="/abhinay/cccc.png"
-                         alt="Icon C"
-                       />
-                     </div>
-       
-                     <div className="flex items-center gap-1 bg-[#F0EAF4] rounded-[6px] p-1">
-                       <img
-                         onClick={() => quickGo("Investor page")}
-                         className="hover:bg-white rounded-[6px] p-1 transition-colors cursor-pointer w-6 h-6"
-                         src="/abhinay/dddd.png"
-                         alt="Icon D"
-                       />
-                       <img
-                         onClick={() => quickGo("franchise opportunities")}
-                         className="hover:bg-white rounded-[6px] p-1 transition-colors cursor-pointer w-6 h-6"
-                         src="/abhinay/eeee.png"
-                         alt="Icon E"
-                       />
-                     </div>
-                   </div>
-                 </div>
-               </div>
-             </div>
+                            {/* Right section: 20% - mic + send buttons */}
+                            <div className="flex-[0.2] flex items-center justify-end gap-2">
+                                <button
+                                    onClick={toggleListening}
+                                    disabled={!speechSupported}
+                                    title={
+                                        speechSupported
+                                            ? isListening
+                                                ? "Listening… click to stop"
+                                                : "Speak your query"
+                                            : "Voice input not supported"
+                                    }
+                                    className={`rounded-md p-2 transition-colors flex items-center justify-center ${isListening ? "bg-red-100" : "bg-transparent"
+                                        } ${!speechSupported
+                                            ? "opacity-50 cursor-not-allowed"
+                                            : "cursor-pointer"
+                                        }`}
+                                >
+                                    <svg
+                                        width="14"
+                                        height="20"
+                                        viewBox="0 0 14 20"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            d="M7 19V16.5455M7 16.5455C5.4087 16.5455 3.88258 15.8558 2.75736 14.6283C1.63214 13.4008 1 11.736 1 10M7 16.5455C8.5913 16.5455 10.1174 15.8558 11.2426 14.6283C12.3679 13.4008 13 11.736 13 10M7 14.0909C4.9375 14.0909 3.25 12.3138 3.25 10.1407V4.95018C3.25 2.77709 4.9375 1 7 1C9.0625 1 10.75 2.77709 10.75 4.95018V10.1407C10.75 12.3138 9.0625 14.0909 7 14.0909Z"
+                                            stroke={isListening ? "#ef4444" : "black"}
+                                            strokeOpacity={isListening ? "0.8" : "0.3"}
+                                            strokeWidth="1.5"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        />
+                                    </svg>
+                                </button>
 
-             {/* Full-Screen Modal for AI Response */}
-             {showModal && (
+                                <button onClick={handleSubmit} disabled={isGenerating || !query.trim()} aria-label="Submit query">
+
+                                    <div className="w-7 h-7 bg-white rounded-sm opacity-90 flex items-center justify-center cursor-pointer p-1">
+                                        <img
+                                            src="/abhinay/HomePageImages/cube.png"
+                                            alt="send"
+                                            className="w-5 h-5 object-contain"
+                                        />
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Bottom row: Quick-go icons */}
+                        <div className="flex items-center gap-1 mt-2">
+                            <div className="flex items-center bg-[#e8f6f6] rounded-[6px]">
+                                <img
+                                    onClick={() => quickGo("show offerings")}
+                                    className="hover:bg-white rounded-[6px] p-1 transition-colors cursor-pointer w-8 h-8"
+                                    src="/abhinay/aaaa.png"
+                                    alt="Icon A"
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-1 bg-[#FCEFE0] rounded-[6px] p-1">
+                                <img
+                                    onClick={() => quickGo("pricing plans")}
+                                    className="hover:bg-white rounded-[6px] p-1 transition-colors cursor-pointer w-6 h-6"
+                                    src="/abhinay/bbbb.png"
+                                    alt="Icon B"
+                                />
+                                <img
+                                    onClick={() => quickGo("startups zone")}
+                                    className="hover:bg-white rounded-[6px] p-1 transition-colors cursor-pointer w-6 h-6"
+                                    src="/abhinay/cccc.png"
+                                    alt="Icon C"
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-1 bg-[#F0EAF4] rounded-[6px] p-1">
+                                <img
+                                    onClick={() => quickGo("Investor page")}
+                                    className="hover:bg-white rounded-[6px] p-1 transition-colors cursor-pointer w-6 h-6"
+                                    src="/abhinay/dddd.png"
+                                    alt="Icon D"
+                                />
+                                <img
+                                    onClick={() => quickGo("franchise opportunities")}
+                                    className="hover:bg-white rounded-[6px] p-1 transition-colors cursor-pointer w-6 h-6"
+                                    src="/abhinay/eeee.png"
+                                    alt="Icon E"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Full-Screen Modal for AI Response */}
+            {showModal && (
                 <div className="fixed inset-0 z-[9999] bg-white overflow-hidden">
                     <div className="relative w-full h-full flex flex-col">
                         {/* Close Button - Top Right */}
@@ -1059,8 +1059,8 @@ const ChatbotSub = ({
                                                     aria-label="Submit query"
                                                 >
                                                     <div className={`w-6 h-6 bg-white rounded-sm opacity-90 flex items-center justify-center ${isGenerating || !query.trim()
-                                                            ? "cursor-not-allowed opacity-50"
-                                                            : "cursor-pointer"
+                                                        ? "cursor-not-allowed opacity-50"
+                                                        : "cursor-pointer"
                                                         }`}>
                                                         <img src="/abhinay/cube.png" alt="send" />
                                                     </div>
@@ -1074,7 +1074,7 @@ const ChatbotSub = ({
                     </div>
                 </div>
             )}
-           </>
+        </>
     );
 };
 

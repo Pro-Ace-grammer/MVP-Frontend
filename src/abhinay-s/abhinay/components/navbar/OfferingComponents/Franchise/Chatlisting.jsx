@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import { X, Loader2 } from 'lucide-react';
 import { searchFranchise } from '../../../../../lib/api';
@@ -189,7 +189,7 @@ const mapFranchiseToCard = (items = []) => {
 };
 
 /**
- * Chatlisting - Franchise Search Component
+ * Chatlisting - Franchise Search Component (Synced with Home Page Search Box)
  */
 const Chatlisting = ({ 
     placeholder = "Search for franchises (e.g., ice-cream, pizza, coffee)...", 
@@ -204,6 +204,24 @@ const Chatlisting = ({
     const inputRef = useRef(null);
     const recognitionRef = useRef(null);
     const navigate = useNavigate();
+
+    const textareaRef = useRef(null);
+    const DEFAULT_HEIGHT = 71; // px
+    const MAX_HEIGHT = 171; // px
+
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = DEFAULT_HEIGHT + "px";
+        }
+    }, []);
+
+    const handleInput = () => {
+        const el = textareaRef.current;
+        if (el) {
+            el.style.height = "auto";
+            el.style.height = Math.min(el.scrollHeight, MAX_HEIGHT) + "px";
+        }
+    };
 
     // Initialize SpeechRecognition
     useEffect(() => {
@@ -278,17 +296,17 @@ const Chatlisting = ({
         }
     };
 
+    const handleSubmit = () => {
+        if (query.trim()) {
+            navigate(`/franchise/searchlistingpage/${query}`);
+        }
+    };
+
     const handleKeyDown = (e) => {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             handleSubmit();
         }
-    };
-
-    const handleSubmit = async () => {
-        
-       navigate(`searchlistingpage/${query}`);
-
     };
 
     const closeModal = () => {
@@ -318,124 +336,133 @@ const Chatlisting = ({
     };
 
     return (
-        <>
+        <div className="w-full">
             <Toaster position="bottom-center" />
-                         <div className="max-w-2xl px-4 py-3 mx-auto shadow-xl rounded-[64px]  border-gray-300 border-t-1">
-                           <div className="relative bg-white rounded-3xl px-5 py-2  mt-7">
-                             {/* Main layout: top row (input + mic/send), bottom row (quick icons) */}
-                             <div className="flex flex-col gap-3">
-                               {/* Top row: input aligned with mic + send */}
-                               <div className="flex items-center gap-0">
-                                 {/* Input: 80% */}
-                                 <div className="flex-[0.8]">
-                                   <div className="flex items-center">
-                                     <input
-                                        ref={inputRef}
-                                            type="text"
-                                            placeholder={placeholder}
-                                            className="flex-1 text-gray-700 placeholder-gray-400 bg-transparent border-none outline-none text-base"
-                                            value={query}
-                                            onChange={(e) => setQuery(e.target.value)}
-                                            onKeyDown={handleKeyDown}
-                                            disabled={isSearching}
-                                     />
-                                   </div>
-                                 </div>
-                   
-                                 {/* Right section: 20% - mic + send buttons */}
-                                 <div className="flex-[0.2] flex items-center justify-end gap-2">
-                                   <button
-                                     onClick={toggleListening}
-                                     disabled={!speechSupported}
-                                     title={
-                                       speechSupported
-                                         ? isListening
-                                           ? "Listening… click to stop"
-                                           : "Speak your query"
-                                         : "Voice input not supported"
-                                     }
-                                     className={`rounded-md p-2 transition-colors flex items-center justify-center ${isListening ? "bg-red-100" : "bg-transparent"
-                                       } ${!speechSupported
-                                         ? "opacity-50 cursor-not-allowed"
-                                         : "cursor-pointer"
-                                       }`}
-                                   >
-                                     <svg
-                                       width="14"
-                                       height="20"
-                                       viewBox="0 0 14 20"
-                                       fill="none"
-                                       xmlns="http://www.w3.org/2000/svg"
-                                     >
-                                       <path
-                                         d="M7 19V16.5455M7 16.5455C5.4087 16.5455 3.88258 15.8558 2.75736 14.6283C1.63214 13.4008 1 11.736 1 10M7 16.5455C8.5913 16.5455 10.1174 15.8558 11.2426 14.6283C12.3679 13.4008 13 11.736 13 10M7 14.0909C4.9375 14.0909 3.25 12.3138 3.25 10.1407V4.95018C3.25 2.77709 4.9375 1 7 1C9.0625 1 10.75 2.77709 10.75 4.95018V10.1407C10.75 12.3138 9.0625 14.0909 7 14.0909Z"
-                                         stroke={isListening ? "#ef4444" : "black"}
-                                         strokeOpacity={isListening ? "0.8" : "0.3"}
-                                         strokeWidth="1.5"
-                                         strokeLinecap="round"
-                                         strokeLinejoin="round"
-                                       />
-                                     </svg>
-                                   </button>
-                   
-                                    <button onClick={handleSubmit} disabled={isSearching || !query.trim()} aria-label="Submit query">
             
-                                     <div className="w-7 h-7 bg-white rounded-sm opacity-90 flex items-center justify-center cursor-pointer p-1">
-                                       <img
-                                         src="/abhinay/HomePageImages/cube.png"
-                                         alt="send"
-                                         className="w-5 h-5 object-contain"
-                                       />
-                                     </div>
-                                   </button>
-                                 </div>
-                               </div>
-                   
-                               {/* Bottom row: Quick-go icons */}
-                               <div className="flex items-center gap-1 mt-2">
-                                 <div className="flex items-center bg-[#e8f6f6] rounded-[6px]">
-                                   <img
-                                     onClick={() => quickGo("show offerings")}
-                                     className="hover:bg-white rounded-[6px] p-1 transition-colors cursor-pointer w-8 h-8"
-                                     src="/abhinay/aaaa.png"
-                                     alt="Icon A"
-                                   />
-                                 </div>
-                   
-                                 <div className="flex items-center gap-1 bg-[#FCEFE0] rounded-[6px] p-1">
-                                   <img
-                                     onClick={() => quickGo("pricing plans")}
-                                     className="hover:bg-white rounded-[6px] p-1 transition-colors cursor-pointer w-6 h-6"
-                                     src="/abhinay/bbbb.png"
-                                     alt="Icon B"
-                                   />
-                                   <img
-                                     onClick={() => quickGo("startups zone")}
-                                     className="hover:bg-white rounded-[6px] p-1 transition-colors cursor-pointer w-6 h-6"
-                                     src="/abhinay/cccc.png"
-                                     alt="Icon C"
-                                   />
-                                 </div>
-                   
-                                 <div className="flex items-center gap-1 bg-[#F0EAF4] rounded-[6px] p-1">
-                                   <img
-                                     onClick={() => quickGo("Investor page")}
-                                     className="hover:bg-white rounded-[6px] p-1 transition-colors cursor-pointer w-6 h-6"
-                                     src="/abhinay/dddd.png"
-                                     alt="Icon D"
-                                   />
-                                   <img
-                                     onClick={() => quickGo("franchise opportunities")}
-                                     className="hover:bg-white rounded-[6px] p-1 transition-colors cursor-pointer w-6 h-6"
-                                     src="/abhinay/eeee.png"
-                                     alt="Icon E"
-                                   />
-                                 </div>
-                               </div>
-                             </div>
-                           </div>
-                         </div>
-            {/* Full-Screen Modal for Search Results */}
+            {/* SEARCH BOX CONTAINER - Swapped design to match NewChatbot.jsx */}
+            <div className="max-w-2xl mx-auto px-4 py-2 shadow-xl rounded-[48px] border border-gray-300 bg-transparent">
+                <div className="relative rounded-3xl px-4 py-2">
+                    <div className="flex flex-col gap-2">
+                        {/* INPUT ROW */}
+                        <div className="flex items-center text-left">
+                            {/* TEXTAREA */}
+                            <div className="flex-[0.8] flex items-center">
+                                <textarea
+                                    ref={textareaRef}
+                                    rows={1}
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                    onInput={handleInput}
+                                    onKeyDown={handleKeyDown}
+                                    placeholder="Search for franchises (e.g., ice-cream, pizza, coffee)..."
+                                    className="
+                                        w-full text-sm text-gray-700 placeholder-gray-400
+                                        bg-transparent outline-none border-none
+                                        resize-none overflow-y-auto
+                                        leading-5 flex items-center
+                                    "
+                                    style={{
+                                        minHeight: `${DEFAULT_HEIGHT}px`,
+                                        maxHeight: `${MAX_HEIGHT}px`,
+                                        paddingTop: '28px'
+                                    }}
+                                />
+                            </div>
+
+                            {/* ACTION BUTTONS */}
+                            <div className="flex-[0.2] flex items-center justify-end gap-2">
+                                {/* MIC */}
+                                <button
+                                    onClick={toggleListening}
+                                    disabled={!speechSupported}
+                                    title="Speak your query"
+                                    className="p-2 rounded-md cursor-pointer hover:bg-gray-100 transition"
+                                >
+                                    <svg
+                                        width="14"
+                                        height="20"
+                                        viewBox="0 0 14 20"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            d="M7 19V16.5M7 16.5C5.4 16.5 3.9 15.9 2.8 14.6
+                                            C1.6 13.4 1 11.7 1 10
+                                            M7 16.5C8.6 16.5 10.1 15.9 11.2 14.6
+                                            C12.4 13.4 13 11.7 13 10
+                                            M7 14.1C4.9 14.1 3.3 12.3 3.3 10.1V5
+                                            C3.3 2.8 4.9 1 7 1
+                                            C9.1 1 10.8 2.8 10.8 5V10.1
+                                            C10.8 12.3 9.1 14.1 7 14.1Z"
+                                            stroke={isListening ? "#ef4444" : "black"}
+                                            strokeOpacity={isListening ? "0.8" : "0.3"}
+                                            strokeWidth="1.5"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        />
+                                    </svg>
+                                </button>
+
+                                {/* SEND / CUBE */}
+                                <button className="cursor-pointer" onClick={handleSubmit} disabled={isSearching || !query.trim()}>
+                                    <div className="w-[46px] h-[46px] bg-white rounded-sm flex items-center justify-center p-1 opacity-90">
+                                        <img
+                                            src="/abhinay/HomePageImages/cube.png"
+                                            alt="send"
+                                            className="w-9 h-9 object-contain"
+                                        />
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* ICON ROW */}
+                        <div className="flex items-center gap-1 mt-1">
+                            <div className="flex items-center bg-[#e8f6f6] rounded-[6px]">
+                                <img
+                                    src="/abhinay/aaaa.png"
+                                    alt="A"
+                                    className="w-8 h-8 px-1 rounded-[6px] cursor-pointer hover:bg-white transition"
+                                    onClick={() => quickGo("show offerings")}
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-1 bg-[#FCEFE0] rounded-[6px] px-1">
+                                <img
+                                    src="https://ik.imagekit.io/lemiciiq/LeMiCi/location.png?updatedAt=1772785333478"
+                                    alt="B"
+                                    className="w-8 h-8 p-1 rounded-[6px] cursor-pointer hover:bg-white transition"
+                                    onClick={() => quickGo("pricing plans")}
+                                />
+
+                                <img
+                                    src="/abhinay/cccc.png"
+                                    alt="C"
+                                    className="w-8 h-8 p-1 rounded-[6px] cursor-pointer hover:bg-white transition"
+                                    onClick={() => quickGo("startups zone")}
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-1 bg-[#F0EAF4] rounded-[6px] px-1">
+                                <img
+                                    src="/abhinay/dddd.png"
+                                    alt="D"
+                                    className="w-8 h-8 p-1 rounded-[6px] cursor-pointer hover:bg-white transition"
+                                    onClick={() => quickGo("Investor page")}
+                                />
+                                <img
+                                    src="/abhinay/eeee.png"
+                                    alt="E"
+                                    className="w-8 h-8 p-1 rounded-[6px] cursor-pointer hover:bg-white transition"
+                                    onClick={() => quickGo("franchise opportunities")}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* RESULTS MODAL (Kept for search results if triggered in future) */}
             {showModal && (
                 <div className="fixed inset-0 z-[9999] bg-white overflow-hidden">
                     <div className="relative w-full h-full flex flex-col">
@@ -454,7 +481,6 @@ const Chatlisting = ({
                             <button
                                 onClick={closeModal}
                                 className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                                aria-label="Close modal"
                             >
                                 <X className="w-6 h-6 text-gray-600" />
                             </button>
@@ -492,7 +518,7 @@ const Chatlisting = ({
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 };
 

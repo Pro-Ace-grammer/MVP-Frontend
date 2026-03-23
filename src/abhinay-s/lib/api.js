@@ -69,7 +69,7 @@ export const fetchFranchiseListing = async (industry, page) => {
     `${PROXY_URL}/api/franchises/listing`,
     {
       params: {
-        industry: industry.toLowerCase() || "fashion",
+        industry: industry?.toLowerCase() || "food", // Default to food if null
         page: page || 1,
       },
       headers: {

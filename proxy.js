@@ -31,11 +31,13 @@ app.get("/api/franchises/listing", async (req, res) => {
 // 2️⃣ Home endpoint
 app.get("/api/franchises/home", async (req, res) => {
   try {
+    console.log(`📡 Fetching home data from: ${BASE_URL}/home`);
     const response = await axios.get(`${BASE_URL}/home`);
-
+    console.log("✅ Successfully fetched home data");
+    // console.log("Response data sample:", JSON.stringify(response.data).substring(0, 500));
     res.json(response.data);
   } catch (error) {
-    console.error(error.message);
+    console.error("❌ Error fetching home data:", error.message);
     res.status(500).json({ error: "Failed to fetch home data" });
   }
 });

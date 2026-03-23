@@ -21,6 +21,7 @@ import {
   FaTools,
 } from "react-icons/fa";
 import FranchiseTabs from "./FranchiseTabs";
+import { MdVerified } from "react-icons/md";
 const IndFranchiseSport = () => {
 
   // Franchise Details
@@ -273,10 +274,12 @@ const IndFranchiseSport = () => {
               />
               <div className="ml-2">
                 <div className="flex items-center space-x-1 flex-wrap">
-                  <h2 className="text-2xl font-bold">{franchiseData.name}</h2>
-                  {franchiseData.verified && (
-                    <img src="/abhinay/blue-tick.svg" alt="" className="w-4" />
-                  )}
+                  <h2 className="text-2xl font-bold">
+                    {franchiseData.name}
+                    {franchiseData.verified && (
+                      <MdVerified className="inline-block text-blue-500 text-xl ml-2 align-text-bottom" />
+                    )}
+                  </h2>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500 mt-1">
                   <span className="bg-gray-100 px-2 py-0.5 rounded">

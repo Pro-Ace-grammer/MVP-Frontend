@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 const TopFranchiseOpportunities = ({ data }) => {
   const navigate = useNavigate();
-  
+
   if (!data?.industries?.length) return null;
 
   const handleIndustryClick = (industryName) => {

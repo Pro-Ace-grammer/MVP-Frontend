@@ -67,7 +67,10 @@ const Navbar = () => {
                 </ul>
 
                 {/* Desktop Button */}
-                <button className="hidden md:inline bg-[#6D3E93] text-white px-5 py-2 rounded-md font-medium cursor-pointer">
+                <button 
+                    onClick={() => keycloak.login()}
+                    className="hidden md:inline bg-[#6D3E93] text-white px-5 py-2 rounded-md font-medium cursor-pointer"
+                >
                     Get started
                 </button>
                 {/* Hamburger */}

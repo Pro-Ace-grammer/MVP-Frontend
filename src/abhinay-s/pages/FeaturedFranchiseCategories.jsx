@@ -6,9 +6,7 @@ const FeaturedFranchiseCategories = ({
   data = [],
   showViewMore = true,
 }) => {
-    console.log(data)
   if (!Array.isArray(data) || data.length === 0) return null;
-    // console.log(data)
   return (
     <div className="w-[80%]">
       {/* Title */}

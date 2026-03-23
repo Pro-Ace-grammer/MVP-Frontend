@@ -28,7 +28,7 @@ const SignIn = ({ keycloak }) => {
     try {
       // Get Keycloak token using Direct Access Grant (Resource Owner Password Credentials)
       const tokenUrl = `${keycloak.url}/realms/${keycloak.realm}/protocol/openid-connect/token`;
-      
+
       const params = new URLSearchParams();
       params.append('client_id', keycloak.clientId);
       params.append('username', email);

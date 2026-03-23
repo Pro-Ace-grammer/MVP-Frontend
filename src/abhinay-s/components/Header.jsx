@@ -6,12 +6,11 @@ const navItems = [
   { to: "/offerings", label: "Offering" },
   { to: "/pricings", label: "Pricing" },
   { to: "/what-we-do", label: "What we do ?" },
-  { to: "/coming-soon", label: "Connect" },
-  { to: "/coming-soon", label: "Resources" },
+  { to: "/connect", label: "Connect" },
+  { to: "/resources", label: "Resources" },
 ];
 
 export default function Header(props) {
-    const { keycloak, style } = props;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [atTop, setAtTop] = useState(true);
   const location = useLocation();
@@ -30,7 +29,7 @@ export default function Header(props) {
   return (
     <header
       className={`sticky top-0 z-[1000] ${props.className || ""}`}
-      style={style}
+      style={props.style}
     >
       {/* Floating container */}
       <div className="mx-auto max-w-4xl px-3 sm:px-4">
@@ -39,7 +38,7 @@ export default function Header(props) {
         <div
           className={[
             "mt-3 flex items-center justify-between",
-            "rounded-[18px] border-9 border-[#fdfbfb] backdrop-blur-xl",
+            "rounded-4xl border-[10px] border-[rgba(255,255,255,0.3)] bg-clip-padding",
             "transition-all duration-300",
             "bg-[rgba(235,235,236,1)]"
           ].join(" ")}
@@ -50,7 +49,7 @@ export default function Header(props) {
               <img
                 src="/hari/logo-main.png"
                 alt="LeMiCi"
-                className="h-11 w-auto rounded-md"
+                className="h-13 w-auto rounded-md"
                 style={{ maxWidth: 120 }}
               />
             </Link>
@@ -60,11 +59,10 @@ export default function Header(props) {
           <nav className="hidden md:flex items-center gap-1">
             <Link
               to="/"
-              className={`px-3 py-2 rounded-full text-sm font-medium transition ${
-                location.pathname === "/"
-                  ? "bg-[#6D3E93] text-white"
-                  : "text-gray-700 hover:text-[#6D3E93]"
-              }`}
+              className={`px-3 py-2 rounded-full text-sm font-medium transition ${location.pathname === "/"
+                ? "bg-[#6D3E93] text-white"
+                : "text-gray-700 hover:text-[#6D3E93]"
+                }`}
             >
               Home
             </Link>
@@ -89,17 +87,12 @@ export default function Header(props) {
 
           {/* Right: CTA + mobile button */}
           <div className="pr-3 sm:pr-4 py-2 flex items-center gap-2">
-            {keycloak && !keycloak.authenticated ? (
-              <button
-                className="hidden sm:inline-flex items-center rounded-xl bg-[#6D3E93] text-white text-sm font-semibold px-4 py-2 shadow-sm hover:opacity-90 transition"
-              onClick={() => keycloak.login()}>Get Started</button>
-            ) : (
-              keycloak && <button
+            <button
+              onClick={() => props.keycloak && props.keycloak.login()}
               className="hidden sm:inline-flex items-center rounded-xl bg-[#6D3E93] text-white text-sm font-semibold px-4 py-2 shadow-sm hover:opacity-90 transition"
-              onClick={() => keycloak.logout()}>Logout</button>
-            )}
-
-
+            >
+              Get Started
+            </button>
 
             <button
               onClick={() => setIsMobileMenuOpen((v) => !v)}
@@ -149,12 +142,12 @@ export default function Header(props) {
               );
             })}
             <div className="p-2">
-              <Link
-                to="/get-started"
-                className="block w-full text-center rounded-xl bg-[#6D3E93] text-white text-sm font-semibold px-4 py-3"
+              <button
+                onClick={() => props.keycloak && props.keycloak.login()}
+                className="block w-full text-center rounded-xl bg-[#6D3E93] text-white text-sm font-semibold px-4 py-3 cursor-pointer"
               >
                 Get Started
-              </Link>
+              </button>
             </div>
           </div>
         </div>

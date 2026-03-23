@@ -327,14 +327,7 @@ useEffect(() => {
           listingSection.data
         );
         setFranchiseItems(mappedData);
-        
-        // Debug: Log the first item to see what tags look like
-        if (mappedData.length > 0) {
-        //   console.log("Sample franchise item:", mappedData[0]);
-        //   console.log("All unique tags:", [...new Set(mappedData.flatMap(item => item.tags || []))]);
-        }
       }
-    //   console.log(listingSection.data)
 
        const featuredSection = sections.find(
         (s) => s.type === "featured_categories" && s.enabled === true

@@ -95,12 +95,12 @@ const OfferingsSection = () => {
         Offerings
       </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+      <div className="flex flex-wrap justify-center gap-8 max-w-7xl mx-auto">
         {offerings.map((item, index) => (
           <Link
             key={index}
             to={item.path}
-            className={`block p-6 rounded-3xl shadow-sm border-2 ${item.bg} ${item.border} transition-transform hover:scale-[1.04] cursor-pointer`}
+            className={`block w-full sm:w-80 p-6 rounded-3xl shadow-sm border-2 ${item.bg} ${item.border} transition-transform hover:scale-[1.04] cursor-pointer`}
           >
             <div className="bg-white w-14 h-14 rounded-full shadow-md flex items-center justify-center mb-4">
               {item.icon}

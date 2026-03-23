@@ -11,10 +11,10 @@ const PopularListing = ({ data }) => {
     if (!Array.isArray(data) || data.length === 0) return [];
 
     const start = page * perPage;
-const formatRange = (min, max, unit) => {
-  if (!min || !max) return "";
-  return `${min}-${max} ${unit}`;
-};
+    const formatRange = (min, max, unit) => {
+      if (!min || !max) return "";
+      return `${min}-${max} ${unit}`;
+    };
 
     return data.slice(start, start + perPage).map((item, index) => ({
       // 🔑 BACKEND → FCARD PROPS MAPPING
@@ -25,20 +25,20 @@ const formatRange = (min, max, unit) => {
       rating: item.rating,
       tags: item.tags || [],
       verified: item.tags?.includes("Verified") || true,
-      logoUrl: item.logo?.url,
-     stats: {
-  space: formatRange(
-    item.space?.minSpace,
-    item.space?.maxSpace,
-    item.space?.spaceUnit
-  ),
-  outlets: item.no_of_outlets,
-  investment: formatRange(
-    item.investmentRange?.minInvestment,
-    item.investmentRange?.maxInvestment,
-    item.investmentRange?.investmentUnit
-  ),
-},
+      logoUrl: item.logo?.square,
+      stats: {
+        space: formatRange(
+          item.space?.minSpace,
+          item.space?.maxSpace,
+          item.space?.spaceUnit
+        ),
+        outlets: item.no_of_outlets,
+        investment: formatRange(
+          item.investmentRange?.minInvestment,
+          item.investmentRange?.maxInvestment,
+          item.investmentRange?.investmentUnit
+        ),
+      },
       c: item.color,
       slug: item.slug,
       animationClass: direction ? `slide-${direction}` : "",
@@ -61,10 +61,10 @@ const formatRange = (min, max, unit) => {
   return (
     <>
       <style>{`
-        @keyframes slideInLeft {
+        @keyframes slideInFromRight {
           from {
             opacity: 0;
-            transform: translateX(-100%);
+            transform: translateX(50px);
           }
           to {
             opacity: 1;
@@ -72,10 +72,10 @@ const formatRange = (min, max, unit) => {
           }
         }
         
-        @keyframes slideInRight {
+        @keyframes slideInFromLeft {
           from {
             opacity: 0;
-            transform: translateX(100%);
+            transform: translateX(-50px);
           }
           to {
             opacity: 1;
@@ -84,18 +84,18 @@ const formatRange = (min, max, unit) => {
         }
         
         .slide-left {
-          animation: slideInLeft 0.5s ease-out;
+          animation: slideInFromRight 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .slide-right {
-          animation: slideInRight 0.5s ease-out;
+          animation: slideInFromLeft 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
       `}</style>
-      
+
       <div className="w-full relative mt-10">
         {/* Title */}
         <div className="absolute left-1/2 transform -translate-x-1/2 text-sm sm:text-base font-semibold px-6 sm:px-10 lg:px-16 py-2 rounded-[30px]">
-          popular listing
+          Popular Listing
         </div>
 
         {/* Arrows */}

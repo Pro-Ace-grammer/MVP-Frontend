@@ -25,6 +25,8 @@ import { useNavigate, useParams } from "react-router-dom";
 
 
 
+import { MdVerified } from "react-icons/md";
+
 const IndFranchiseFood = () => {
   const { id: slug } = useParams();
     const navigate = useNavigate();
@@ -182,7 +184,6 @@ const IndFranchiseFood = () => {
       fetchFranchiseDetails(slug)
         .then((res) => {
           setFranchiseDataBackend(res);   // store data in variable (state)
-        console.log('a', res);
           setLoading(false);
         })
         .catch((err) => {
@@ -427,10 +428,12 @@ const info = [
               />
               <div className="">
                 <div className="flex items-center space-x-1 flex-wrap">
-                  <h2 className="text-2xl font-bold">{franchiseDataBackend?.data?.basicInfo?.brand}</h2>
-                  {franchiseData.verified && (
-                    <img src="/FranchiseHomePage/DetailsPageImages/blue-tick.svg" alt="" className="w-4" />
-                  )}
+                  <h2 className="text-2xl font-bold">
+                    {franchiseDataBackend?.data?.basicInfo?.brand}
+                    {franchiseData.verified && (
+                      <MdVerified className="inline-block text-blue-500 text-xl ml-2 align-text-bottom" />
+                    )}
+                  </h2>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500 mt-1">
                   {franchiseData.year && (

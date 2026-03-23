@@ -6,6 +6,14 @@ import keycloak from "./keycloak";
 
 const root = createRoot(document.getElementById("root"));
 
+// Render the app immediately so it doesn't block if Keycloak is down
+root.render(
+  <StrictMode>
+    <App keycloak={keycloak} />
+  </StrictMode>
+);
+
+// Initialize Keycloak in the background
 keycloak
   .init({
     onLoad: "check-sso",      // ✅ DO NOT force login
@@ -14,13 +22,8 @@ keycloak
   })
   .then((authenticated) => {
     console.log("Keycloak initialized:", authenticated);
-
-    root.render(
-      <StrictMode>
-        <App keycloak={keycloak} />
-      </StrictMode>
-    );
+    // Optionally trigger a re-render or update a global store here if needed
   })
   .catch((err) => {
-    console.error("Keycloak init failed", err);
+    console.warn("Keycloak init failed (is Docker running?)", err);
   });

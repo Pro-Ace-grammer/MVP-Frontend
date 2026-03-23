@@ -1,8 +1,13 @@
 import React, { useState } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
+import keycloak from "../../../../keycloak";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+
+  const handleLogin = () => {
+    keycloak.login();
+  };
 
   return (
     <>
@@ -23,7 +28,10 @@ const Navbar = () => {
         </ul>
 
         {/* Right - Button */}
-        <button className="hidden md:inline bg-[#6D3E93] text-white px-5 py-2 rounded-xl font-medium cursor-pointer">
+        <button 
+          onClick={handleLogin}
+          className="hidden md:inline bg-[#6D3E93] text-white px-5 py-2 rounded-xl font-medium cursor-pointer"
+        >
           Get started
         </button>
 
@@ -54,7 +62,10 @@ const Navbar = () => {
           <li className="list-none text-gray-700 font-medium cursor-pointer hover:text-[#6D3E93]">
             Resources
           </li>
-          <button className="bg-[#6D3E93] text-white px-6 py-2 rounded-xl font-medium">
+          <button 
+            onClick={handleLogin}
+            className="bg-[#6D3E93] text-white px-6 py-2 rounded-xl font-medium cursor-pointer"
+          >
             Get started
           </button>
         </div>

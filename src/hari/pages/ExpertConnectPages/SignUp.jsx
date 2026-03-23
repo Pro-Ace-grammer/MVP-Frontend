@@ -38,7 +38,7 @@ const SignUp = ({ keycloak }) => {
     try {
       // Register user with Keycloak
       const adminToken = await getAdminToken();
-      
+
       const userData = {
         username: formData.email,
         email: formData.email,
@@ -58,7 +58,7 @@ const SignUp = ({ keycloak }) => {
       };
 
       const registerUrl = `${keycloak.authServerUrl}/admin/realms/${keycloak.realm}/users`;
-      
+
       await axios.post(registerUrl, userData, {
         headers: {
           'Content-Type': 'application/json',
@@ -68,7 +68,7 @@ const SignUp = ({ keycloak }) => {
 
       // Auto-login after registration
       const tokenUrl = `${keycloak.authServerUrl}/realms/${keycloak.realm}/protocol/openid-connect/token`;
-      
+
       const params = new URLSearchParams();
       params.append('client_id', keycloak.clientId);
       params.append('username', formData.email);
