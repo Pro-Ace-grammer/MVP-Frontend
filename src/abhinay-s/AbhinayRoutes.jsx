@@ -39,7 +39,7 @@ import NewFranchiseListing from './pages/NewFranchiseListing.jsx'
 import NewFranchiseListingGolf from './pages/NewFranchiseListingGolf.jsx'
 import CategoryListingPage from './pages/CategoryListingPage.jsx'
 import NewFranchiseListingAll from './pages/NewFranchiseListingAll.jsx'
-import NewFranchiseListingsrchAll from './abhinay/components/navbar/OfferingComponents/Franchise/NewFranchiseListingsrchAll.jsx'
+import AllIndustries from './pages/AllIndustries.jsx'
 function AbhinayRoutes() {
    
 
@@ -56,7 +56,7 @@ function AbhinayRoutes() {
         <Route path="startups-zone-opportunities" element={<StartupOppurtunities />} />
         <Route path="startups-zone-investorhub" element={<InvestorHub />} />
          <Route path="/franchise" element={<Franchise />} />
-<Route path="/franchise/searchlistingpage/:query" element={<NewFranchiseListingsrchAll />} />
+<Route path="/franchise/searchlistingpage" element={<NewFranchiseListingAll />} />
 
         <Route path="franchise/oppurtunties" element={<Opp />} />
         <Route path="franchise/details" element={<Single />} />
@@ -83,6 +83,7 @@ function AbhinayRoutes() {
         <Route path="/Individual-food-listingpage" element={<NewFranchiseListing />} />
         <Route path="/Individual-golf-listingpage" element={<NewFranchiseListingGolf />} />
         <Route path="/category-listing-page" element={<CategoryListingPage />} />
+        <Route path="/franchise/industries" element={<AllIndustries />} />
     </>
   )
 }

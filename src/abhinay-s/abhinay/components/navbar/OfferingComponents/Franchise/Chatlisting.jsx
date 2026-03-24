@@ -298,7 +298,7 @@ const Chatlisting = ({
 
     const handleSubmit = () => {
         if (query.trim()) {
-            navigate(`/franchise/searchlistingpage/${query}`);
+            navigate(`/franchise/searchlistingpage?query=${query}`);
         }
     };
 

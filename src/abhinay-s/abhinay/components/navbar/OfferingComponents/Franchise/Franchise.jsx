@@ -546,14 +546,18 @@ useEffect(() => {
 
       <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-12 xl:px-20 mb-8">
         <p className="text-center text-black text-3xl font-bold">
-          Why you should choose LeMiCi
+          Explore Franchises by Cities
         </p>
         <h1 className="text-lg mt-2 text-center text-[#615E63]">
-          Explore franchise opportunities across thriving cities !
+          Discover prime franchise opportunities across India&apos;s fastest-growing urban hubs.
         </h1>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 lg:gap-20 mt-6">
           {data.cities.map((city) => (
-            <div key={city.id} className="text-center">
+            <div 
+              key={city.id} 
+              className="text-center cursor-pointer hover:scale-105 transition-transform"
+              onClick={() => navigate(`/franchise/searchlistingpage?query=Franchises in ${city.label}`)}
+            >
               <div className="w-full aspect-square h-32 rounded-[20px] overflow-hidden">
                 <IKImage
                   path={`/${city.icon}`}

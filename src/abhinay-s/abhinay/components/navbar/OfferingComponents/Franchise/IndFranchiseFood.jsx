@@ -17,6 +17,9 @@ import {
   FaRulerCombined,
   FaUtensils,
   FaTools,
+  FaHistory,
+  FaHeadset,
+  FaCalendarCheck,
 } from "react-icons/fa";
 import { IKImage } from "imagekitio-react";
 import { fetchFranchiseDetails } from "../../../../../lib/api";
@@ -177,6 +180,7 @@ const IndFranchiseFood = () => {
 
   const [franchiseDataBackend, setFranchiseDataBackend] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showAllInfo, setShowAllInfo] = useState(false);
 
   useEffect(() => {
     if (slug) {
@@ -206,16 +210,58 @@ const franchiseFees = franchiseDataBackend?.data?.investment_details?.franchise_
 const franchiseFeesValue = franchiseFees
   ? `₹${franchiseFees.min}–${franchiseFees.max} ${franchiseFees.unit}`
   : "-";
-const spaceRequirement = franchiseDataBackend?.data?.franchising_overview?.space_requirement;
+  const spaceRequirement = franchiseDataBackend?.data?.franchising_overview?.space_requirement;
 
-const info = [
+  const info = [
     {
       label: "Initial Investment",
       value: investmentValue,
       icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/1a1.png" />,
     },
     {
-      label: "Unit as of 2025",
+      label: "Monthly Revenue",
+      value: franchiseDataBackend?.data?.investment_details?.monthly_revenue || franchiseDataBackend?.data?.operation?.monthly_revenue || "-",
+      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/9g9.png" />,
+    },
+    {
+      label: "Payback Period",
+      value: franchiseDataBackend?.data?.investment_details?.payback_period 
+        ? `${franchiseDataBackend.data.investment_details.payback_period} Months`
+        : "-",
+      icon: <FaHistory className="text-gray-400" />,
+    },
+    {
+      label: "ROI (%)",
+      value: franchiseDataBackend?.data?.investment_details?.roi || "-",
+      icon: <FaChartLine className="text-gray-400" />,
+    },
+    {
+      label: "Franchise Fees",
+      value: franchiseFeesValue,
+      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/10h.png" />,
+    },
+    {
+      label: "Royalties",
+      value: franchiseDataBackend?.data?.investment_details?.royalties || "-",
+      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/12j.png" />,
+    },
+    {
+      label: "Industry",
+      value: franchiseDataBackend?.data?.basicInfo?.category || franchiseDataBackend?.data?.basicInfo?.industry?.name,
+      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/4c4.png" />,
+    },
+    {
+      label: "Leadership Name",
+      value: franchiseDataBackend?.data?.basicInfo?.leadership || "-",
+      icon: <FaUserTie className="text-gray-400" />,
+    },
+    {
+      label: "Parent Company",
+      value: franchiseDataBackend?.data?.basicInfo?.parent_company || franchiseDataBackend?.data?.basicInfo?.parentCompany || "-",
+      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/5d5.png" />,
+    },
+    {
+      label: "Units as of 2025",
       value: franchiseDataBackend?.data?.franchising_overview?.number_of_units 
         ? `${franchiseDataBackend.data.franchising_overview.number_of_units}+ Outlets`
         : `${franchiseDataBackend?.data?.basicInfo?.no_of_outlets || 0}+ Outlets`,
@@ -229,24 +275,11 @@ const info = [
       icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/3b3.png" />,
     },
     {
-      label: "Industry",
-      value: franchiseDataBackend?.data?.basicInfo?.category || franchiseDataBackend?.data?.basicInfo?.industry?.name,
-      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/4c4.png" />,
-    },
-    {
-      label: "Headquarters",
-      value: franchiseDataBackend?.data?.franchising_overview?.headquarters || franchiseDataBackend?.data?.basicInfo?.location,
-      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/5d5.png" />,
-    },
-    {
-      label: "Sector",
-      value: franchiseDataBackend?.data?.operation?.sector || "-",
-      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/6d6.png" />,
-    },
-    {
-      label: "Property Type",
-      value: franchiseDataBackend?.data?.operation?.required_property || "-",
-      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/7e7.png" />,
+      label: "Term Duration",
+      value: franchiseDataBackend?.data?.franchising_overview?.term_duration 
+        ? `${franchiseDataBackend.data.franchising_overview.term_duration} Years`
+        : "-",
+      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/11i.png" />,
     },
     {
       label: "Staff Required",
@@ -256,19 +289,29 @@ const info = [
       icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/8f8.png" />,
     },
     {
-      label: "Franchise Fees",
-      value: franchiseFeesValue,
-      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/10h.png" />,
+      label: "Training Program",
+      value: franchiseDataBackend?.data?.business_overview?.training_and_support?.training_notes || (franchiseDataBackend?.data?.business_overview?.training_and_support?.franchisee_training_program ? "Available" : "-"),
+      icon: <FaTools className="text-gray-400" />,
     },
     {
-      label: "Home/Mobile Based",
-      value: franchiseDataBackend?.data?.operation?.can_be_run_from_home_or_mobile || "-",
-      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/11i.png" />,
+      label: "Ongoing Support",
+      value: franchiseDataBackend?.data?.business_overview?.training_and_support?.ongoing_support_notes || (franchiseDataBackend?.data?.business_overview?.training_and_support?.ongoing_support ? "Included" : "-"),
+      icon: <FaHeadset className="text-gray-400" />,
     },
     {
-      label: "Absentee Ownership",
-      value: franchiseDataBackend?.data?.operation?.is_absentee_ownership_allowed || "-",
-      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/12j.png" />,
+      label: "Technology & Systems",
+      value: franchiseDataBackend?.data?.operation?.technology_systems || "-",
+      icon: <FaTools className="text-gray-400" />,
+    },
+    {
+      label: "Contract Renewal Fee",
+      value: franchiseDataBackend?.data?.franchising_overview?.renewal_fee || "-",
+      icon: <FaRupeeSign className="text-gray-400" />,
+    },
+    {
+      label: "Audit/Visit Frequency",
+      value: franchiseDataBackend?.data?.operation?.audit_frequency || "-",
+      icon: <FaCalendarCheck className="text-gray-400" />,
     },
   ];
 
@@ -420,32 +463,59 @@ const info = [
         <div className="flex flex-col md:flex-row items-start justify-between gap-6 w-full">
           {/* Left Section */}
           <div className="flex flex-col items-start space-x-4">
-            <div className="flex">
-              <IKImage
-                path={franchiseDataBackend?.data?.basicInfo?.logo.url}
-               
-                className="w-16 h-16 rounded-full object-cover"
-              />
-              <div className="">
-                <div className="flex items-center space-x-1 flex-wrap">
-                  <h2 className="text-2xl font-bold">
-                    {franchiseDataBackend?.data?.basicInfo?.brand}
+            <div className="flex items-center gap-5">
+              <div className="w-24 h-24 rounded-2xl shadow-sm overflow-hidden shrink-0">
+                {(() => {
+                  const logoData = franchiseDataBackend?.data?.basicInfo?.logo;
+                  const logoUrl = logoData?.square || logoData?.url || logoData;
+                  const isAbsolute = typeof logoUrl === "string" && /^(https?:\/\/|\/\/)/.test(logoUrl);
+                  
+                  return isAbsolute ? (
+                    <img 
+                      src={logoUrl} 
+                      className="w-full h-full object-cover" 
+                      alt={franchiseDataBackend?.data?.basicInfo?.brand} 
+                    />
+                  ) : (
+                    <IKImage
+                      path={logoUrl}
+                      className="w-full h-full object-cover"
+                      alt={franchiseDataBackend?.data?.basicInfo?.brand}
+                      loading="lazy"
+                    />
+                  );
+                })()}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-2xl font-bold flex items-center">
+                    {franchiseDataBackend?.data?.basicInfo?.brand || franchiseData.name}
                     {franchiseData.verified && (
-                      <MdVerified className="inline-block text-blue-500 text-xl ml-2 align-text-bottom" />
+                      <MdVerified className="text-blue-500 text-xl ml-2 shrink-0" />
                     )}
                   </h2>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500 mt-1">
-                  {franchiseData.year && (
+                  {(franchiseDataBackend?.data?.basicInfo?.year_of_establishment || franchiseDataBackend?.data?.basicInfo?.since || franchiseData.year) && (
                     <span className="bg-gray-100 px-2 py-0.5 rounded">
-                      {franchiseData.year}
+                      {franchiseDataBackend?.data?.basicInfo?.year_of_establishment || franchiseDataBackend?.data?.basicInfo?.since || franchiseData.year}
                     </span>
                   )}
-                  {franchiseData.badges.map((badge, index) => (
-                    <span key={index} className="bg-gray-100 px-2 py-0.5 rounded">
-                      {badge}
+                  {(franchiseDataBackend?.data?.basicInfo?.category || franchiseDataBackend?.data?.basicInfo?.industry?.name) && (
+                    <span className="bg-gray-100 px-2 py-0.5 rounded">
+                      {franchiseDataBackend?.data?.basicInfo?.category || franchiseDataBackend?.data?.basicInfo?.industry?.name}
                     </span>
-                  ))}
+                  )}
+                  {(franchiseDataBackend?.data?.basicInfo?.is_verified !== undefined ? (franchiseDataBackend.data.basicInfo.is_verified ? "Trusted Seller" : "Verified Brand") : (franchiseData.verified ? "Trusted Seller" : null)) && (
+                    <span className="bg-gray-100 px-2 py-0.5 rounded">
+                      {franchiseDataBackend?.data?.basicInfo?.is_verified ? "Trusted Seller" : "Verified Brand"}
+                    </span>
+                  )}
+                  {(franchiseDataBackend?.data?.basicInfo?.no_of_outlets > 0 || franchiseDataBackend?.data?.franchising_overview?.number_of_units > 0) && (
+                    <span className="bg-gray-100 px-2 py-0.5 rounded">
+                      {(franchiseDataBackend?.data?.basicInfo?.no_of_outlets || franchiseDataBackend?.data?.franchising_overview?.number_of_units)}+ Outlets
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -598,7 +668,7 @@ const info = [
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
-          {info.map((item, idx) => (
+          {(showAllInfo ? info : info.slice(0, 12)).map((item, idx) => (
             <div
               key={idx}
               className="flex items-center justify-between px-7 py-4 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition duration-300"
@@ -609,14 +679,19 @@ const info = [
                   {item.value}
                 </p>
               </div>
-              <div className="text-gray-400 text-lg">{item.icon}</div>
+              <div className="text-gray-400 text-lg w-8 h-8 flex items-center justify-center">
+                {item.icon}
+              </div>
             </div>
           ))}
         </div>
 
         <div className="text-center mt-6">
-          <button className="text-indigo-500 font-medium hover:underline">
-            View more →
+          <button 
+            onClick={() => setShowAllInfo(!showAllInfo)}
+            className="text-indigo-500 font-medium hover:underline flex items-center gap-1 mx-auto"
+          >
+            {showAllInfo ? "View less ↑" : "View more →"}
           </button>
         </div>
       </div>

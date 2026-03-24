@@ -113,5 +113,19 @@ export const searchFranchise = async (query) => {
   return response.data;
 };
 
+export const fetchIndustries = async () => {
+  const response = await axios.get(
+    `${PROXY_URL}/api/franchises/industries`,
+    {
+      headers: {
+        Accept: "application/json",
+        "X-Lang": "en",
+      },
+    }
+  );
+
+  return response.data;
+};
+
 
 export { BASE_URL, PROXY_URL, request };

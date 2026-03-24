@@ -305,8 +305,17 @@ const FloatingChatbot = ({
   context = "general",
   quickActions = [],
 }) => {
-  const { setShowChatbot } = useChatbot();
+  const { setShowChatbot, initialQuery, setInitialQuery } = useChatbot();
   const [query, setQuery] = useState("");
+  // ... rest of state
+  
+  // Pre-fill query from context and wait for user to press enter
+  useEffect(() => {
+    if (initialQuery && initialQuery.trim()) {
+      setQuery(initialQuery.trim());
+      setInitialQuery(""); // Clear it so it doesn't keep resetting
+    }
+  }, [initialQuery]);
   const [messages, setMessages] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -833,7 +842,7 @@ const FloatingChatbot = ({
               className="hover:scale-110 transition-transform"
             >
               <div className="w-6 h-6 bg-white rounded-sm opacity-90 flex items-center justify-center cursor-pointer">
-                <img src="abhinay/HomePageImages/cube.png" alt="send" />
+                <img src="/abhinay/HomePageImages/cube.png" alt="send" />
               </div>
             </button>
           </div>
@@ -1057,7 +1066,7 @@ const FloatingChatbot = ({
                                 : "cursor-pointer"
                             }`}
                           >
-                            <img src="/abhinay/cube.png" alt="send" />
+                            <img src="/abhinay/HomePageImages/cube.png" alt="send" />
                           </div>
                         </button>
                       </div>

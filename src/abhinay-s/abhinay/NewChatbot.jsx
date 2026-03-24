@@ -135,7 +135,7 @@ const NewChatbot = () => {
 
   const handleSubmit = useCallback(() => {
     if (query.trim()) {
-      navigate(`/franchise/searchlistingpage/${query}`);
+      navigate(`/franchise/searchlistingpage?query=${query}`);
     }
   }, [navigate, query]);
 

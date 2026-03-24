@@ -30,13 +30,33 @@ const Fcard = ({
   const fullStars = Math.max(0, Math.min(5, Math.round(rating)));
   const stars = "★".repeat(fullStars) + "☆".repeat(5 - fullStars);
   const isAbsoluteLogo =
-  typeof logoUrl === "string" &&
-  /^(https?:\/\/|\/\/)/.test(logoUrl);
+    typeof logoUrl === "string" &&
+    /^(https?:\/\/|\/\/)/.test(logoUrl);
+  const [showRating, setShowRating] = useState(false);
+  const [selectedRating, setSelectedRating] = useState(0);
+  const [feedback, setFeedback] = useState("");
+
+  const handleRatingClick = (e) => {
+    e.stopPropagation();
+    setShowRating(!showRating);
+  };
+
+  const handleSubmitRating = (e) => {
+    e.stopPropagation();
+    if (selectedRating > 0) {
+      toast.success(`Rating submitted: ${selectedRating} stars!`);
+      setShowRating(false);
+      setSelectedRating(0);
+      setFeedback("");
+    } else {
+      toast.error("Please select a rating first");
+    }
+  };
 
 
   const handleCopyUrl = (e) => {
     e.stopPropagation();
-    const url = `${window.location.origin}/newFranchise1/${slug || 'listing'}`;
+    const url = `${window.location.origin}/franchise/details/${slug || 'chai-point'}`;
     navigator.clipboard.writeText(url).then(() => {
       toast.success("Listing url copied");
     }).catch(() => {
@@ -53,37 +73,37 @@ const Fcard = ({
   };
 
   return (
-       <div
+    <div
       onClick={onClick}
-      className={`w-full max-w-[26rem] rounded-3xl p-4 shadow-md cursor-pointer`}
-       style={{
-        background: `linear-gradient(to bottom, ${c}, #ffffff)`
+      className={`w-full max-w-[26rem] rounded-3xl p-4 shadow-sm cursor-pointer`}
+      style={{
+        background: `linear-gradient(to bottom, ${c}, ${c}0a)`
       }}
     >
       {/* Header */}
       <div className="flex items-center gap-3 my-4 h-16">
-         <IKImage
-              path={logoUrl}
-              alt={title}
-              className="w-14 h-14 rounded-lg object-cover"
-              loading="lazy"
-            />
+        <IKImage
+          path={logoUrl}
+          alt={title}
+          className="w-14 h-14 rounded-lg object-cover"
+          loading="lazy"
+        />
 
         <div className="flex flex-col">
           <div className="flex items-center gap-1">
-            <h2 className="font-semibold text-lg text-black">{title}</h2>
-            {verified && <MdVerified className="text-blue-500 text-lg" />}
+            <h2 className="font-semibold text-lg text-white">{title}</h2>
+            {verified && <MdVerified className="text-blue-400 text-lg" />}
           </div>
 
-          <p className="text-sm text-gray-700">
+          <p className="text-sm text-white/90">
             {since && `Since ${since}`} {location}
           </p>
         </div>
 
         {/* Rating */}
         <div className="h-full mt-6 ml-auto flex items-start gap-1 text-sm font-medium">
-          <IKImage 
-            path="FranchiseHomePage/star-rating.png" 
+          <IKImage
+            path="FranchiseHomePage/star-rating.png"
             alt="rating"
             className="w-4 h-4"
             loading="lazy"
@@ -105,7 +125,7 @@ const Fcard = ({
           {tags.map((tag, index) => (
             <span
               key={index}
-                className="px-6 py-3 bg-white rounded-full text-xs font-medium text-gray-700 shadow-sm inline-flex items-center justify-center"
+              className="px-6 py-3 bg-white rounded-full text-xs font-medium text-gray-700 shadow-sm inline-flex items-center justify-center"
             >
               {tag}
             </span>
@@ -149,22 +169,85 @@ const Fcard = ({
         </div>
       </div>
 
-      {/* Bottom Actions */}
-      <div 
+      <div
         onClick={(e) => e.stopPropagation()}
-      className="mt-6 mb-3 bg-white/30 backdrop-blur-sm rounded-2xl px-4 py-3 flex items-center justify-between border border-white/50">
-        <button className="cursor-pointer p-2">
-          <IKImage path="FranchiseHomePage/d1.png" className="w-5 h-5" alt="action" loading="lazy" />
-        </button>
-        <button className="cursor-pointer p-2">
+        className="mt-6 mb-3 bg-white/70 backdrop-blur-md rounded-2xl px-4 py-2 flex items-center justify-between border border-white/60 shadow-sm">
+        <div className="relative flex items-center">
+          <button className="cursor-pointer p-2 transition-transform hover:scale-110" onClick={handleRatingClick}>
+            <IKImage path="FranchiseHomePage/d1.png" className="w-5 h-5" alt="action" loading="lazy" />
+          </button>
+          
+          {/* Enhanced Review Popup */}
+          {showRating && (
+            <div 
+              className="absolute bottom-full left-0 mb-3 bg-white rounded-2xl shadow-2xl p-5 z-[100] border border-gray-100 w-[300px] sm:w-[330px]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-0.5">
+                <h3 className="text-base font-bold text-gray-900">Rate this Franchise</h3>
+                <button onClick={() => setShowRating(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                  <span className="text-lg">✕</span>
+                </button>
+              </div>
+              <p className="text-[11px] text-gray-500 mb-4 font-normal">Help others by sharing your experience</p>
+              
+              <div className="border-t border-gray-100 pt-4 mb-3">
+                <p className="text-gray-700 text-xs font-semibold mb-3">How would you rate this opportunity?</p>
+                <div className="flex gap-1.5">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      onClick={() => setSelectedRating(star)}
+                      className="transition-all hover:scale-110"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill={star <= (selectedRating || 0) ? "#FFC107" : "none"}
+                        stroke={star <= (selectedRating || 0) ? "#FFC107" : "#D1D5DB"}
+                        strokeWidth="1.5"
+                        className="w-8 h-8"
+                      >
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      </svg>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <p className="text-gray-700 text-xs font-semibold mb-2">Share your feedback (optional)</p>
+                <textarea
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  placeholder="Tell us what you liked or disliked..."
+                  className="w-full min-h-[70px] border border-gray-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none resize-none transition-all placeholder:text-gray-300"
+                />
+              </div>
+
+              <button
+                onClick={handleSubmitRating}
+                disabled={!selectedRating}
+                className={`w-full py-3 px-3 rounded-2xl font-semibold text-xs transition-all duration-300 ${
+                  selectedRating 
+                    ? "bg-[#E6E6E6] text-gray-600 hover:bg-[#DEDEDE]" 
+                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                }`}
+              >
+                Submit Rating
+              </button>
+            </div>
+          )}
+        </div>
+        <button className="cursor-pointer p-2 transition-transform hover:scale-110">
           <IKImage path="FranchiseHomePage/d2.png" className="w-5 h-5" alt="action" loading="lazy" />
         </button>
-        <button className="cursor-pointer p-2" onClick={handleCopyUrl}>
+        <button className="cursor-pointer p-2 transition-transform hover:scale-110" onClick={handleCopyUrl}>
           <IKImage path="FranchiseHomePage/d3.png" className="w-5 h-5" alt="action" loading="lazy" />
         </button>
-        <button className="cursor-pointer bg-blue-600 p-2 rounded-full">
-          <IKImage path="FranchiseHomePage/d4.png" className="w-5 h-5" alt="action" loading="lazy" />
-        </button>
+         <button className="cursor-pointer transition-transform hover:scale-105 active:scale-95 flex items-center">
+           <IKImage path="FranchiseHomePage/icons/send_query.png" className="w-8 h-8" alt="action" loading="lazy" />
+         </button>
       </div>
     </div>
   );
@@ -203,37 +286,37 @@ const formatRange = (min, max, unit) => {
   return `${min}-${max} ${unit}`;
 };
 const mapFranchiseListingToCard = (items = []) => {
-    
+
   if (!Array.isArray(items)) return [];
 
   return items.map((item) => ({
     // 🔑 BACKEND → FCARD PROPS MAPPING
-      title: item.brand,
-      description: item.description,
-      location: item.location,
-      since: item.year_of_establishment,
-      rating: item.rating,
-      tags: item.tags || [],
-      category: item.category, // ✅ Add category field
-      verified: item.tags?.includes("Verified") || true,
-      logoUrl: item.logo?.url,
-     stats: {
-  space: formatRange(
-    item.space?.minSpace,
-    item.space?.maxSpace,
-    item.space?.spaceUnit
-  ),
-  outlets: item.no_of_outlets,
-  investment: formatRange(
-    item.investmentRange?.minInvestment,
-    item.investmentRange?.maxInvestment,
-    item.investmentRange?.investmentUnit
-  ),
-},
-      c: item.color,
-      slug: item.slug,
-    
-}));
+    title: item.brand,
+    description: item.description,
+    location: item.location,
+    since: item.year_of_establishment,
+    rating: item.rating,
+    tags: item.tags || [],
+    category: item.category, // ✅ Add category field
+    verified: item.tags?.includes("Verified") || true,
+    logoUrl: item.logo?.url,
+    stats: {
+      space: formatRange(
+        item.space?.minSpace,
+        item.space?.maxSpace,
+        item.space?.spaceUnit
+      ),
+      outlets: item.no_of_outlets,
+      investment: formatRange(
+        item.investmentRange?.minInvestment,
+        item.investmentRange?.maxInvestment,
+        item.investmentRange?.investmentUnit
+      ),
+    },
+    c: item.color,
+    slug: item.slug,
+
+  }));
 };
 
 
@@ -259,140 +342,140 @@ const CATEGORIES = [
 ];
 
 export default function ChtList() {
-    const [searchParams, setSearchParams] = useSearchParams();
-    const [heroData, setHeroData] = useState(null);
-const [franchiseItems, setFranchiseItems] = useState([]);
-const [featuredCategories, setFeaturedCategories] = useState([]);
-const [categoryQuestions, setCategoryQuestions] = useState([]);
-const [recommendedFranchises, setRecommendedFranchises] = useState([]);
-const [marketInsights, setMarketInsights] = useState(null);
-const [selectedCategories, setSelectedCategories] = useState([]);
-const [showFilterModal, setShowFilterModal] = useState(false);
-const [activeFilterType, setActiveFilterType] = useState("All");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [heroData, setHeroData] = useState(null);
+  const [franchiseItems, setFranchiseItems] = useState([]);
+  const [featuredCategories, setFeaturedCategories] = useState([]);
+  const [categoryQuestions, setCategoryQuestions] = useState([]);
+  const [recommendedFranchises, setRecommendedFranchises] = useState([]);
+  const [marketInsights, setMarketInsights] = useState(null);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [activeFilterType, setActiveFilterType] = useState("All");
 
-// Initialize selected categories from URL params on mount
-useEffect(() => {
-  const catParam = searchParams.get('category');
-  if (catParam) {
-    const categories = catParam.split(',').filter(Boolean);
-    setSelectedCategories(categories);
-  }
-}, []); // Only run on mount
-
-// Update URL when selected categories change
-useEffect(() => {
-  setSearchParams((prev) => {
-    const newParams = new URLSearchParams(prev);
-    
-    // Update or remove category parameter
-    if (selectedCategories.length > 0) {
-      newParams.set('category', selectedCategories.join(','));
-    } else {
-      newParams.delete('category');
+  // Initialize selected categories from URL params on mount
+  useEffect(() => {
+    const catParam = searchParams.get('category');
+    if (catParam) {
+      const categories = catParam.split(',').filter(Boolean);
+      setSelectedCategories(categories);
     }
-    
-    return newParams;
-  }, { replace: true });
-}, [selectedCategories, setSearchParams]);
+  }, []); // Only run on mount
 
+  // Update URL when selected categories change
+  useEffect(() => {
+    setSearchParams((prev) => {
+      const newParams = new URLSearchParams(prev);
 
-useEffect(() => {
-  // Get industry from URL params
-  const industry = searchParams.get('industry');
-  
-  fetchFranchiseListing(industry, 1)
-    .then((res) => {
-      if (!res?.success) return;
-      const sections = res.data?.sections || [];
-
-      // HERO SECTION ✅
-      const heroSection = sections.find(
-        (section) =>
-          section.type === "hero" && section.enabled === true
-      );
-
-      if (heroSection) {
-        setHeroData(heroSection.data);
+      // Update or remove category parameter
+      if (selectedCategories.length > 0) {
+        newParams.set('category', selectedCategories.join(','));
+      } else {
+        newParams.delete('category');
       }
 
-      // FRANCHISE LISTING SECTION ✅
-      const listingSection = sections.find(
-        (section) =>
-          section.type === "franchise_listing" &&
-          section.enabled === true
-      );
+      return newParams;
+    }, { replace: true });
+  }, [selectedCategories, setSearchParams]);
 
-      if (listingSection) {
-        const mappedData = mapFranchiseListingToCard(
-          listingSection.data
+
+  useEffect(() => {
+    // Get industry from URL params
+    const industry = searchParams.get('industry');
+
+    fetchFranchiseListing(industry, 1)
+      .then((res) => {
+        if (!res?.success) return;
+        const sections = res.data?.sections || [];
+
+        // HERO SECTION ✅
+        const heroSection = sections.find(
+          (section) =>
+            section.type === "hero" && section.enabled === true
         );
-        setFranchiseItems(mappedData);
-      }
 
-       const featuredSection = sections.find(
-        (s) => s.type === "featured_categories" && s.enabled === true
-      );
+        if (heroSection) {
+          setHeroData(heroSection.data);
+        }
 
-      if (featuredSection) {
-        // console.log("Featured Categories Data:", featuredSection.data);
-        setFeaturedCategories(featuredSection.data);
-      } else {
-        // console.log("Featured categories section not found or disabled");
-      }
-
-
-       const questionSection = sections.find(
-      (section) =>
-        section.type === "category_questions" &&
-        section.enabled === true
-    );
-
-    if (questionSection) {
-    //   console.log("Category Questions Data:", questionSection.data?.questions);
-      setCategoryQuestions(questionSection.data?.questions || []);
-    } else {
-    //   console.log("Category questions section not found or disabled");
-    }
-
-      const recommendedSection = sections.find(
-        (section) =>
-          section.type === "recommended_franchises" &&
-          section.enabled === true
-      );
-
-      if (recommendedSection) {
-        // console.log("Recommended Franchises Data:", recommendedSection.data?.items);
-        setRecommendedFranchises(
-          recommendedSection.data?.items || []
+        // FRANCHISE LISTING SECTION ✅
+        const listingSection = sections.find(
+          (section) =>
+            section.type === "franchise_listing" &&
+            section.enabled === true
         );
-      } else {
-        // console.log("Recommended franchises section not found or disabled");
-      }
 
-      const insightsSection = sections.find(
-        (section) =>
-          section.type === "key_market_insights" &&
-          section.enabled === true
-      );
+        if (listingSection) {
+          const mappedData = mapFranchiseListingToCard(
+            listingSection.data
+          );
+          setFranchiseItems(mappedData);
+        }
 
-      if (insightsSection) {
-        // console.log("Market Insights Data:", insightsSection.data);
-        setMarketInsights(insightsSection.data);
-      } else {
-        // console.log("Market insights section not found or disabled");
-      }
+        const featuredSection = sections.find(
+          (s) => s.type === "featured_categories" && s.enabled === true
+        );
 
-    })
-    .catch((err) => {
-    //   console.error("Error fetching franchise listing:", err);
-    });
-}, [searchParams]);
+        if (featuredSection) {
+          // console.log("Featured Categories Data:", featuredSection.data);
+          setFeaturedCategories(featuredSection.data);
+        } else {
+          // console.log("Featured categories section not found or disabled");
+        }
 
-  
- 
-    
-  
-const [showLocal, setShowLocal] = useState(false);
+
+        const questionSection = sections.find(
+          (section) =>
+            section.type === "category_questions" &&
+            section.enabled === true
+        );
+
+        if (questionSection) {
+          //   console.log("Category Questions Data:", questionSection.data?.questions);
+          setCategoryQuestions(questionSection.data?.questions || []);
+        } else {
+          //   console.log("Category questions section not found or disabled");
+        }
+
+        const recommendedSection = sections.find(
+          (section) =>
+            section.type === "recommended_franchises" &&
+            section.enabled === true
+        );
+
+        if (recommendedSection) {
+          // console.log("Recommended Franchises Data:", recommendedSection.data?.items);
+          setRecommendedFranchises(
+            recommendedSection.data?.items || []
+          );
+        } else {
+          // console.log("Recommended franchises section not found or disabled");
+        }
+
+        const insightsSection = sections.find(
+          (section) =>
+            section.type === "key_market_insights" &&
+            section.enabled === true
+        );
+
+        if (insightsSection) {
+          // console.log("Market Insights Data:", insightsSection.data);
+          setMarketInsights(insightsSection.data);
+        } else {
+          // console.log("Market insights section not found or disabled");
+        }
+
+      })
+      .catch((err) => {
+        //   console.error("Error fetching franchise listing:", err);
+      });
+  }, [searchParams]);
+
+
+
+
+
+  const [showLocal, setShowLocal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   // Filter franchises based on selected categories and search term
@@ -405,37 +488,37 @@ const [showLocal, setShowLocal] = useState(false);
         // Check if any selected category matches the item
         return selectedCategories.some(cat => {
           const categoryLower = cat.toLowerCase();
-          
+
           // ✅ PRIORITY: Check the main category field first (exact match)
           if (item.category?.toLowerCase() === categoryLower) {
             return true;
           }
-          
+
           // Also check partial match in category (e.g., "Food" matches "Food & Beverage")
           if (item.category?.toLowerCase().includes(categoryLower) || categoryLower.includes(item.category?.toLowerCase())) {
             return true;
           }
-          
+
           // Check exact match in tags
           if (item.tags?.some(tag => tag.toLowerCase() === categoryLower)) {
             return true;
           }
-          
+
           // Check partial match in tags
           if (item.tags?.some(tag => tag.toLowerCase().includes(categoryLower) || categoryLower.includes(tag.toLowerCase()))) {
             return true;
           }
-          
+
           // Check in title
           if (item.title?.toLowerCase().includes(categoryLower)) {
             return true;
           }
-          
+
           // Check in description
           if (item.description?.toLowerCase().includes(categoryLower)) {
             return true;
           }
-          
+
           return false;
         });
       });
@@ -444,7 +527,7 @@ const [showLocal, setShowLocal] = useState(false);
     // Filter by search term
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.title?.toLowerCase().includes(term) ||
         item.description?.toLowerCase().includes(term) ||
         item.location?.toLowerCase().includes(term) ||
@@ -457,7 +540,7 @@ const [showLocal, setShowLocal] = useState(false);
   }, [franchiseItems, selectedCategories, searchTerm]);
 
   const toggleCategory = (category) => {
-    setSelectedCategories(prev => 
+    setSelectedCategories(prev =>
       prev.includes(category)
         ? prev.filter(c => c !== category)
         : [...prev, category]
@@ -471,13 +554,13 @@ const [showLocal, setShowLocal] = useState(false);
   };
   return (
     <>
-      <Toaster position="top-right" />
-     <section className="relative w-full h-72 sm:h-80 lg:h-[380px] flex items-center text-white bg-[#4A53FA] -mt-24">
+      <Toaster position="top-center" />
+      <section className="relative w-full h-72 sm:h-80 lg:h-[380px] flex items-center text-white bg-[#4A53FA] -mt-24">
 
         {/* Content */}
         <div className="relative z-10 container mx-auto px-4 sm:px-8 lg:px-16 flex flex-col gap-4 mt-22">
           {/* Heading + description */}
-           {heroData && <Hero data={heroData} />}
+          {heroData && <Hero data={heroData} />}
 
           {/* Search & Filters */}
           <div className="flex items-center gap-3 mt-1 sm:mt-2 flex-wrap">
@@ -537,7 +620,7 @@ const [showLocal, setShowLocal] = useState(false);
             </div>
 
             {/* Add Filter button */}
-            <button 
+            <button
               onClick={() => setShowFilterModal(true)}
               className="bg-white flex gap-2 items-center text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-200 transition"
             >
@@ -553,7 +636,7 @@ const [showLocal, setShowLocal] = useState(false);
 
             {/* Clear All Filters */}
             {(selectedCategories.length > 0 || searchTerm) && (
-              <button 
+              <button
                 onClick={clearAllFilters}
                 className="text-white text-sm underline hover:text-gray-200 transition"
               >
@@ -564,43 +647,38 @@ const [showLocal, setShowLocal] = useState(false);
 
           {/* Category tags */}
           <div className="flex gap-2 mt-2 text-[11px] sm:text-xs flex-wrap">
-            <button 
+            <button
               onClick={() => setActiveFilterType("All")}
-              className={`px-3 py-1 rounded-lg transition ${
-                activeFilterType === "All" ? "bg-white text-black" : "hover:bg-white hover:text-black"
-              }`}
+              className={`px-3 py-1 rounded-lg transition ${activeFilterType === "All" ? "bg-white text-black" : "hover:bg-white hover:text-black"
+                }`}
             >
               All
             </button>
-            <button 
+            <button
               onClick={() => setActiveFilterType("Industry")}
-              className={`px-3 py-1 rounded-lg transition ${
-                activeFilterType === "Industry" ? "bg-white text-black" : "hover:bg-white hover:text-black"
-              }`}
+              className={`px-3 py-1 rounded-lg transition ${activeFilterType === "Industry" ? "bg-white text-black" : "hover:bg-white hover:text-black"
+                }`}
             >
               Industry
             </button>
-            <button 
+            <button
               onClick={() => setActiveFilterType("Sector")}
-              className={`px-3 py-1 rounded-lg transition ${
-                activeFilterType === "Sector" ? "bg-white text-black" : "hover:bg-white hover:text-black"
-              }`}
+              className={`px-3 py-1 rounded-lg transition ${activeFilterType === "Sector" ? "bg-white text-black" : "hover:bg-white hover:text-black"
+                }`}
             >
               Sector
             </button>
-            <button 
+            <button
               onClick={() => setActiveFilterType("Investment")}
-              className={`px-3 py-1 rounded-lg transition ${
-                activeFilterType === "Investment" ? "bg-white text-black" : "hover:bg-white hover:text-black"
-              }`}
+              className={`px-3 py-1 rounded-lg transition ${activeFilterType === "Investment" ? "bg-white text-black" : "hover:bg-white hover:text-black"
+                }`}
             >
               Investment
             </button>
-            <button 
+            <button
               onClick={() => setActiveFilterType("City")}
-              className={`px-3 py-1 rounded-lg transition ${
-                activeFilterType === "City" ? "bg-white text-black" : "hover:bg-white hover:text-black"
-              }`}
+              className={`px-3 py-1 rounded-lg transition ${activeFilterType === "City" ? "bg-white text-black" : "hover:bg-white hover:text-black"
+                }`}
             >
               City
             </button>
@@ -627,24 +705,24 @@ const [showLocal, setShowLocal] = useState(false);
 
       {/* Category Filter Modal */}
       {showFilterModal && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
           onClick={() => setShowFilterModal(false)}
         >
-          <div 
+          <div
             className="bg-white rounded-2xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold text-gray-900">Filter by Category</h3>
-              <button 
+              <button
                 onClick={() => setShowFilterModal(false)}
                 className="text-gray-500 hover:text-gray-700 text-2xl"
               >
                 ✕
               </button>
             </div>
-            
+
             <div className="mb-4">
               <p className="text-sm text-gray-600">
                 Selected: <span className="font-semibold">{selectedCategories.length}</span> categories
@@ -658,11 +736,10 @@ const [showLocal, setShowLocal] = useState(false);
                   <button
                     key={category}
                     onClick={() => toggleCategory(category)}
-                    className={`px-4 py-3 rounded-lg text-left text-sm font-medium transition ${
-                      isSelected 
-                        ? "bg-blue-500 text-white shadow-md" 
+                    className={`px-4 py-3 rounded-lg text-left text-sm font-medium transition ${isSelected
+                        ? "bg-blue-500 text-white shadow-md"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center justify-between">
                       <span>{category}</span>
@@ -710,7 +787,7 @@ const [showLocal, setShowLocal] = useState(false);
             <div className="text-6xl mb-4">🔍</div>
             <h3 className="text-2xl font-semibold text-gray-800 mb-2">No franchises found</h3>
             <p className="text-gray-600 mb-4">
-              {selectedCategories.length > 0 || searchTerm 
+              {selectedCategories.length > 0 || searchTerm
                 ? "Try adjusting your filters or search term"
                 : "No franchises available at the moment"}
             </p>
@@ -732,17 +809,17 @@ const [showLocal, setShowLocal] = useState(false);
           <div className="flex gap-6">
             {/* Left side - Franchise grid */}
             {featuredCategories.length > 0 && <FeaturedFranchiseCategories
-  title="Featured all franchise categories"
-  data={featuredCategories}   // backend mapped data
-  showViewMore={true}
-/>}
-            
+              title="Featured all franchise categories"
+              data={featuredCategories}   // backend mapped data
+              showViewMore={true}
+            />}
+
 
 
             {/* Right side - Insights */}
             {categoryQuestions.length > 0 && (
-  <CategoryQuestions data={categoryQuestions} />
-)}
+              <CategoryQuestions data={categoryQuestions} />
+            )}
 
           </div>
         </div>

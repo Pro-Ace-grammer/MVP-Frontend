@@ -1,7 +1,9 @@
 import React from "react";
 import { IKImage } from "imagekitio-react";
+import { useNavigate } from "react-router-dom";
 
 export default function ExploreByCategories({ daata }) {
+  const navigate = useNavigate();
   if (!daata || !daata.categories || daata.categories.length === 0) {
     return null;
   }
@@ -23,6 +25,7 @@ export default function ExploreByCategories({ daata }) {
           <div
             key={item.id}
             className="flex items-center justify-start gap-2 py-2 px-3 bg-[#EEF0FF] text-sm text-gray-700 rounded-2xl cursor-pointer hover:bg-[#E2E6FF] w-full"
+            onClick={() => navigate(`/Individual-food-listingpage?industry=${item.name}`)}
           >
             <IKImage
               path={item.icon_url}
@@ -37,7 +40,10 @@ export default function ExploreByCategories({ daata }) {
         ))}
       </div>
 
-      <p className="text-blue-600 text-sm mt-6 cursor-pointer text-end">
+      <p 
+        className="text-blue-600 text-sm mt-6 cursor-pointer text-end hover:underline"
+        onClick={() => navigate('/franchise/industries')}
+      >
         View All →
       </p>
     </div>

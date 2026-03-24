@@ -8,22 +8,20 @@ import {
 import { IKImage } from "imagekitio-react";
 
 import {
-  FaEnvelope,
-  FaIndustry,
-  FaUserTie,
-  FaBuilding,
-  FaMoneyBill,
-  FaRupeeSign,
   FaClock,
   FaChartLine,
   FaRulerCombined,
   FaUtensils,
   FaTools,
+  FaHistory,
+  FaHeadset,
+  FaCalendarCheck,
 } from "react-icons/fa";
 import FranchiseTabs from "./FranchiseTabs";
 import { MdVerified } from "react-icons/md";
 const IndFranchiseSport = () => {
 
+  const [showAllInfo, setShowAllInfo] = useState(false);
   // Franchise Details
   const franchiseData = {
     logo: "/abhinay/franchise/sport-logo.png",
@@ -174,59 +172,93 @@ const IndFranchiseSport = () => {
     {
       label: "Initial Investment",
       value: "₹10L – ₹5 Cr",
-      icon: <img src="/abhinay/1a1.png" />,
+      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/1a1.png" />,
     },
     {
-      label: "Unit as of 2025",
-      value: "34+ (Global)",
-      icon: <img src="/abhinay/2a2.png" />,
-    },
-    {
-      label: "Space requirement",
-      value: "200–13,000 sq. ft.",
-      icon: <img src="/abhinay/3b3.png" />,
-    },
-    {
-      label: "Industry",
-      value: "Indoor Golf Entertainment",
-      icon: <img src="/abhinay/4c4.png" />,
-    },
-    {
-      label: "Parent company",
-      value: "Independent (Backed by Callaway Golf)",
-      icon: <img src="/abhinay/5d5.png" />,
-    },
-    {
-      label: "Business type",
-      value: "Private Franchisor",
-      icon: <img src="/abhinay/6d6.png" />,
-    },
-    {
-      label: "Leadership",
-      value: "Jared Solomon (Global CEO), Manesh Patel (India CEO)",
-      icon: <img src="/abhinay/7e7.png" />,
-    },
-    {
-      label: "E-mail",
-      value: "Contact via website",
-      icon: <img src="/abhinay/8f8.png" />,
-    },
-    {
-      label: "Expected ROI",
+      label: "Monthly Revenue",
       value: "25% – 35% annually",
-      icon: <img src="/abhinay/9g9.png" />,
+      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/9g9.png" />,
+    },
+    {
+      label: "Payback Period",
+      value: "2-3 Years",
+      icon: <FaHistory className="text-gray-400" />,
+    },
+    {
+      label: "ROI (%)",
+      value: "25-35%",
+      icon: <FaChartLine className="text-gray-400" />,
     },
     {
       label: "Franchise Fees",
       value: "US$50,000",
-      icon: <img src="/abhinay/10h.png" />,
+      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/10h.png" />,
     },
     {
-      label: "Term duration year",
-      value: "5 years",
-      icon: <img src="/abhinay/11i.png" />,
+      label: "Royalties",
+      value: "7%",
+      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/12j.png" />,
     },
-    { label: "Royalties", value: "7%", icon: <img src="/abhinay/12j.png" /> },
+    {
+      label: "Industry",
+      value: "Indoor Golf Entertainment",
+      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/4c4.png" />,
+    },
+    {
+      label: "Leadership Name",
+      value: "Jared Solomon",
+      icon: <FaUserTie className="text-gray-400" />,
+    },
+    {
+      label: "Parent Company",
+      value: "Independent (Backed by Callaway Golf)",
+      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/5d5.png" />,
+    },
+    {
+      label: "Units as of 2025",
+      value: "34+ (Global)",
+      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/2a2.png" />,
+    },
+    {
+      label: "Space requirement",
+      value: "200–13,000 sq. ft.",
+      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/3b3.png" />,
+    },
+    {
+      label: "Term Duration",
+      value: "5 Years",
+      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/11i.png" />,
+    },
+    {
+      label: "Staff Required",
+      value: "10-15",
+      icon: <IKImage path="/FranchiseHomePage/DetailsPageImages/8f8.png" />,
+    },
+    {
+      label: "Training Program",
+      value: "Available",
+      icon: <FaTools className="text-gray-400" />,
+    },
+    {
+      label: "Ongoing Support",
+      value: "Included",
+      icon: <FaHeadset className="text-gray-400" />,
+    },
+    {
+      label: "Technology & Systems",
+      value: "TrackMan Simulator",
+      icon: <FaTools className="text-gray-400" />,
+    },
+    {
+      label: "Contract Renewal Fee",
+      value: "Negotiable",
+      icon: <FaRupeeSign className="text-gray-400" />,
+    },
+    {
+      label: "Audit/Visit Frequency",
+      value: "Quarterly",
+      icon: <FaCalendarCheck className="text-gray-400" />,
+    },
   ];
   return (
     <div className="max-w-7xl mx-auto p-4">
@@ -266,30 +298,40 @@ const IndFranchiseSport = () => {
         <div className="flex flex-col md:flex-row items-start justify-between gap-6 w-full">
           {/* Left Section */}
           <div className="flex flex-col items-start space-x-4">
-            <div className="flex">
-              <img
-                src={franchiseData.logo}
-                alt={`${franchiseData.name} Logo`}
-                className="w-16 h-16 rounded-full object-cover"
-              />
-              <div className="ml-2">
-                <div className="flex items-center space-x-1 flex-wrap">
-                  <h2 className="text-2xl font-bold">
+            <div className="flex items-center gap-5">
+              <div className="w-20 h-20 rounded-2xl shadow-sm overflow-hidden shrink-0">
+                <img
+                  src={franchiseData.logo}
+                  alt={`${franchiseData.name} Logo`}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="ml-2 flex-1">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-2xl font-bold flex items-center">
                     {franchiseData.name}
                     {franchiseData.verified && (
-                      <MdVerified className="inline-block text-blue-500 text-xl ml-2 align-text-bottom" />
+                      <MdVerified className="text-blue-500 text-xl ml-2 shrink-0" />
                     )}
                   </h2>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500 mt-1">
-                  <span className="bg-gray-100 px-2 py-0.5 rounded">
-                    {franchiseData.year}
-                  </span>
-                  {franchiseData.badges.map((badge, index) => (
-                    <span key={index} className="bg-gray-100 px-2 py-0.5 rounded">
-                      {badge}
+                  {franchiseData.year && (
+                    <span className="bg-gray-100 px-2 py-0.5 rounded">
+                      {franchiseData.year}
                     </span>
-                  ))}
+                  )}
+                  {franchiseData.industry && (
+                    <span className="bg-gray-100 px-2 py-0.5 rounded">
+                      {franchiseData.industry}
+                    </span>
+                  )}
+                  <span className="bg-gray-100 px-2 py-0.5 rounded">
+                    {franchiseData.verified ? "Trusted Seller" : "Verified Brand"}
+                  </span>
+                  <span className="bg-gray-100 px-2 py-0.5 rounded">
+                    34+ Outlets
+                  </span>
                 </div>
               </div>
             </div>
@@ -399,7 +441,7 @@ const IndFranchiseSport = () => {
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
-          {info.map((item, idx) => (
+          {(showAllInfo ? info : info.slice(0, 12)).map((item, idx) => (
             <div
               key={idx}
               className="flex items-center justify-between px-7 py-4 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition duration-300"
@@ -410,14 +452,19 @@ const IndFranchiseSport = () => {
                   {item.value}
                 </p>
               </div>
-              <div className="text-gray-400 text-lg">{item.icon}</div>
+              <div className="text-gray-400 text-lg w-8 h-8 flex items-center justify-center">
+                {item.icon}
+              </div>
             </div>
           ))}
         </div>
 
         <div className="text-center mt-6">
-          <button className="text-indigo-500 font-medium hover:underline">
-            View more →
+          <button 
+            onClick={() => setShowAllInfo(!showAllInfo)}
+            className="text-indigo-500 font-medium hover:underline flex items-center gap-1 mx-auto"
+          >
+            {showAllInfo ? "View less ↑" : "View more →"}
           </button>
         </div>
       </div>

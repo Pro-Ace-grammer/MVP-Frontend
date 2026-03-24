@@ -75,6 +75,18 @@ app.get("/api/franchises/detail/:slug", async (req, res) => {
 });
 
 
+// 5️⃣ Industries endpoint
+app.get("/api/franchises/industries", async (req, res) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/industries`);
+    res.json(response.data);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Failed to fetch industries" });
+  }
+});
+
+
 const PORT = 3001;
 
 app.listen(PORT, () => {

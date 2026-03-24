@@ -1,42 +1,41 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useChatbot } from "../abhinay/ChatbotContext";
 
 const CategoryQuestions = ({
   title = "Understanding Category franchise",
   data = [],
 }) => {
-
-    
-  const navigate = useNavigate();
+  const { setInitialQuery, setShowChatbot } = useChatbot();
 
   // safety check
   if (!Array.isArray(data) || data.length === 0) return null;
 
   const handleQuestionClick = (question) => {
-    // Navigate to Franchise page with question
-    navigate(`/franchise?question=${encodeURIComponent(question)}&autoSubmit=true`);
+    // Set query in chatbot context and open it
+    setInitialQuery(question);
+    setShowChatbot(true);
   };
 
   return (
-    <div className="border rounded-xl px-4 py-2 bg-gray-50">
+    <div className="border border-gray-200 rounded-[28px] px-8 py-8 bg-white shadow-sm h-fit">
       {/* Heading */}
-      <h3 className="text-2xl font-bold mb-4">
+      <h3 className="text-2xl font-bold mb-6 text-gray-900 leading-tight">
         {title}
       </h3>
 
       {/* Questions */}
-      <ul className="space-y-3">
-  {data.map((question, index) => (
-    <li key={index}>
-      <button
-        onClick={() => handleQuestionClick(question)}
-        className="text-[#268BFF] hover:underline text-base leading-relaxed block text-left w-full cursor-pointer"
-      >
-        {question}
-      </button>
-    </li>
-  ))}
-</ul>
+      <ul className="space-y-4">
+        {data.map((question, index) => (
+          <li key={index}>
+            <button
+              onClick={() => handleQuestionClick(question)}
+              className="text-[#3B82F6] hover:underline text-[15px] leading-relaxed block text-left w-full cursor-pointer transition"
+            >
+              {question}
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
