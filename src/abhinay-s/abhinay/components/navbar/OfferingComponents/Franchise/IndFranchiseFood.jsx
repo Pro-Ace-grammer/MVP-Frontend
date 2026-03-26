@@ -25,6 +25,9 @@ import { IKImage } from "imagekitio-react";
 import { fetchFranchiseDetails } from "../../../../../lib/api";
 import FranchiseTabs from "./FranchiseTabs";
 import { useNavigate, useParams } from "react-router-dom";
+import FeaturedFranchiseCategories from "../../../../../pages/FeaturedFranchiseCategories";
+import CategoryQuestions from "../../../../../pages/CategoryQuestions";
+import RecommendedFranchises from "../../../../../pages/RecommendedFranchises";
 
 
 
@@ -201,16 +204,33 @@ const rating = franchiseDataBackend?.data?.basicInfo?.rating || 0;
 const fullStars = Math.floor(rating);      // 4
 const hasHalfStar = rating % 1 !== 0;      // true
 const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-const investment = franchiseDataBackend?.data?.investment_details?.initial_investment;
+const basicInfo = franchiseDataBackend?.data?.basicInfo;
+const investmentDetails = franchiseDataBackend?.data?.investment_details;
+const franchisingOverview = franchiseDataBackend?.data?.franchising_overview;
+const operationData = franchiseDataBackend?.data?.operation;
 
+const investment = investmentDetails?.initial_investment;
 const investmentValue = investment
-  ? `₹${investment.min}–${investment.max} ${investment.unit}`
+  ? (typeof investment === 'object' 
+      ? `₹${investment.min || 0}–${investment.max || 0} ${investment.unit || ""}`
+      : investment)
   : "-";
-const franchiseFees = franchiseDataBackend?.data?.investment_details?.franchise_fee;
+
+const franchiseFees = investmentDetails?.franchise_fee;
 const franchiseFeesValue = franchiseFees
-  ? `₹${franchiseFees.min}–${franchiseFees.max} ${franchiseFees.unit}`
+  ? (typeof franchiseFees === 'object'
+      ? `₹${franchiseFees.min || 0}–${franchiseFees.max || 0} ${franchiseFees.unit || ""}`
+      : franchiseFees)
   : "-";
-  const spaceRequirement = franchiseDataBackend?.data?.franchising_overview?.space_requirement;
+
+const payback = investmentDetails?.payback_period;
+const paybackValue = payback
+  ? (typeof payback === 'object'
+      ? `${payback.min || 0}–${payback.max || 0} ${payback.unit || "Months"}`
+      : `${payback} Months`)
+  : "-";
+
+const spaceRequirement = franchisingOverview?.space_requirement;
 
   const info = [
     {
@@ -225,9 +245,7 @@ const franchiseFeesValue = franchiseFees
     },
     {
       label: "Payback Period",
-      value: franchiseDataBackend?.data?.investment_details?.payback_period 
-        ? `${franchiseDataBackend.data.investment_details.payback_period} Months`
-        : "-",
+      value: paybackValue,
       icon: <FaHistory className="text-gray-400" />,
     },
     {
@@ -467,7 +485,13 @@ const franchiseFeesValue = franchiseFees
               <div className="w-24 h-24 rounded-2xl shadow-sm overflow-hidden shrink-0">
                 {(() => {
                   const logoData = franchiseDataBackend?.data?.basicInfo?.logo;
-                  const logoUrl = logoData?.square || logoData?.url || logoData;
+                  let logoUrl = "";
+                  if (typeof logoData === "string") {
+                    logoUrl = logoData;
+                  } else if (logoData && typeof logoData === "object") {
+                    logoUrl = logoData.square || logoData.url || "";
+                  }
+                  
                   const isAbsolute = typeof logoUrl === "string" && /^(https?:\/\/|\/\/)/.test(logoUrl);
                   
                   return isAbsolute ? (
@@ -478,7 +502,7 @@ const franchiseFeesValue = franchiseFees
                     />
                   ) : (
                     <IKImage
-                      path={logoUrl}
+                      path={logoUrl || "/placeholder-logo.png"}
                       className="w-full h-full object-cover"
                       alt={franchiseDataBackend?.data?.basicInfo?.brand}
                       loading="lazy"
@@ -521,7 +545,9 @@ const franchiseFeesValue = franchiseFees
             </div>
             <div>
               <p className="text-gray-700 mt-3 text-sm md:text-base max-w-2xl">
-                {franchiseDataBackend?.data?.basicInfo?.description}
+                {typeof franchiseDataBackend?.data?.basicInfo?.description === 'string' 
+                  ? franchiseDataBackend.data.basicInfo.description 
+                  : ""}
               </p>
               {/* <div className="flex flex-wrap space-x-3 mt-4">
                 <button className="bg-[#4A53FA] text-white px-12 py-3 rounded-[25px] hover:bg-indigo-700 w-full sm:w-auto">
@@ -674,9 +700,11 @@ const franchiseFeesValue = franchiseFees
               className="flex items-center justify-between px-7 py-4 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition duration-300"
             >
               <div className="">
-                <p className="text-gray-500 text-sm">{item.label}</p>
+                <p className="text-gray-500 text-sm">
+                  {typeof item.label === 'string' ? item.label : ""}
+                </p>
                 <p className="text-indigo-600 font-medium text-base sm:text-lg">
-                  {item.value}
+                  {typeof item.value === 'string' || typeof item.value === 'number' ? item.value : "-"}
                 </p>
               </div>
               <div className="text-gray-400 text-lg w-8 h-8 flex items-center justify-center">
@@ -702,128 +730,64 @@ const franchiseFeesValue = franchiseFees
       
 
       <div className="w-full px-6 py-10 bg-white">
-  <div className="flex gap-6">
-    {/* Left side - Franchise grid */}
-    <div className="w-[80%]">
-      <h2 className="text-2xl font-semibold mb-6">
-        Featured food franchise categories
-      </h2>
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        {(
-          franchiseDataBackend?.data?.sections?.find(s => s.type === "featured_categories")?.data || []
-        ).map((item, index) => (
-          <div key={index}>
-            <div className="rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition bg-white">
-              <IKImage
-                path={item.image?.url || item.image}
-                alt={item.image?.alt || item.name || item.brand}
-                className="w-full h-48 object-cover"
-              />
-            </div>
-            <div className="text-center p-2">
-              <p className="font-medium text-gray-800">
-                {item.brand || item.name}
-              </p>
-            </div>
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
+          {/* Left side - Franchise categories */}
+          <div className="flex-1">
+            <FeaturedFranchiseCategories
+              title={(() => {
+                const industry = basicInfo?.category || basicInfo?.industry?.name || "";
+                return `Featured ${industry.toLowerCase()} categories`;
+              })()}
+              data={franchiseDataBackend?.data?.sections?.find(s => s.type === "featured_categories")?.data || []}
+              showViewMore={true}
+            />
           </div>
-        ))}
-      </div>
 
-      {/* View more link */}
-      <div className="mt-4 text-right">
-        <a href="#" className="text-blue-600 hover:underline">
-          View more →
-        </a>
-      </div>
-    </div>
-
-    {/* Right side - Insights */}
-    <div className="border rounded-xl px-4 py-2 bg-gray-50">
-      <h3 className="text-2xl font-bold mb-4">
-        Understanding Category franchise
-      </h3>
-      <ul className="space-y-3">
-        {(
-          franchiseDataBackend?.data?.sections?.find(s => s.type === "category_questions")?.data?.questions || []
-        ).map((q, i) => (
-          <li key={i}>
-            <a
-              href="#"
-              className="text-[#268BFF] hover:underline text-base leading-relaxed block"
-            >
-              {q}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
-  </div>
-</div>
-
-<div className="w-full px-6 py-10 bg-white">
-  <h2 className="text-2xl font-semibold mb-6">Recommended Franchise</h2>
-
-  <div className="grid md:grid-cols-4 gap-6">
-    {/* Left side: Franchise cards */}
-    <div className="md:col-span-3 overflow-x-auto flex gap-4 pb-2">
-      {(
-        franchiseDataBackend?.data?.sections?.find(s => s.type === "recommended_franchises")?.data?.items || []
-      ).map((item, index) => (
-        <div
-          key={index}
-          className="min-w-[220px] h-full rounded-xl overflow-hidden border shadow-sm hover:shadow-md transition relative group"
-        >
-          <IKImage
-            path={item.image?.url || item.image}
-            alt={item.image?.alt || item.name || item.brand}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute bottom-1 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-1 pb-2">
-            <h3 className="font-semibold text-white text-lg">
-              {item.brand || item.name}
-            </h3>
-            <p className="text-sm text-gray-200 mt-1">{item.industry || item.category}</p>
-            <button className="mt-3 bg-white w-full border-2 border-white px-4 py-1 rounded-full hover:bg-white hover:text-black transition">
-              Explore
-            </button>
+          {/* Right side - Insights/Questions */}
+          <div className="lg:w-[460px] sticky top-24">
+            <CategoryQuestions 
+              data={franchiseDataBackend?.data?.sections?.find(s => s.type === "category_questions")?.data?.questions || []} 
+            />
           </div>
         </div>
-      ))}
-    </div>
-
-    {/* Right side: Market insights */}
-    <div className="border border-[#EDEDED] rounded-xl p-6">
-      <h3 className="text-lg font-bold mb-3">Key Market insights</h3>
-      <div className="space-y-3">
-        {Object.entries(franchiseDataBackend?.data?.key_market_insights || {}).map(([key, insight], index) => (
-          <div key={index}>
-            <p className="text-[#268BFF] font-medium">
-              {insight.title}
-            </p>
-            <p className="text-gray-600 text-sm mt-1">
-              {insight.description}
-            </p>
-          </div>
-        ))}
       </div>
+
+<div className="w-full px-6 py-10 bg-white border-t border-gray-100">
+  <div className="mb-16">
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
+      <div>
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">
+          Recommended {basicInfo?.category || basicInfo?.industry?.name || ""} Franchises
+        </h2>
+        <p className="text-gray-500 max-w-2xl text-sm sm:text-base">
+          Discover top-rated franchises handpicked based on your preferences and
+          investment range. Explore high-potential businesses that are expanding fast.
+        </p>
+      </div>
+      <button className="text-[#4A53FA] text-sm font-bold hover:underline flex items-center gap-1.5 shrink-0 mb-1">
+        View more <span className="text-lg">→</span>
+      </button>
     </div>
+    <RecommendedFranchises />
   </div>
 
   {/* Disclaimer */}
-  <p className="mt-6 text-xs text-gray-500 leading-relaxed">
-    <strong>Disclaimer:</strong> LeMiCi IQ is an integrated franchise solution
-    company since 2025 and an absolute authority on franchising and licensing.
-    FIHL (www.lemici.com) and the site sponsors accept no liability for the
-    accuracy of any information contained on this site or other linked sites.
-    We recommend you take advice from a lawyer, accountant, and franchise
-    consultant experienced in franchising before you commit yourself. It is
-    the user's responsibility to verify accuracy and reliability. Please read
-    the{" "}
-    <a href="#" className="text-blue-600 hover:underline">
-      terms & condition
-    </a>.
-  </p>
+  <div className="mt-12 pt-8 border-t border-gray-100">
+    <p className="text-xs text-gray-400 leading-relaxed italic">
+      <strong>Disclaimer:</strong> LeMiCi IQ is an integrated franchise solution
+      company since 2025 and an absolute authority on franchising and licensing.
+      FIHL (www.lemici.com) and the site sponsors accept no liability for the
+      accuracy of any information contained on this site or other linked sites.
+      We recommend you take advice from a lawyer, accountant, and franchise
+      consultant experienced in franchising before you commit yourself. It is
+      the user's responsibility to verify accuracy and reliability. Please read
+      the{" "}
+      <a href="#" className="text-blue-500 hover:underline active:text-blue-700 transition-colors">
+        terms & condition
+      </a>
+      .
+    </p>
+  </div>
 </div>
 
     </div>

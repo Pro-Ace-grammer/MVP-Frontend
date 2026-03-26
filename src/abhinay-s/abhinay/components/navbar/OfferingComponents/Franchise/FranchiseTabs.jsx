@@ -97,21 +97,21 @@ export default function FranchiseTabs({ franchiseData }) {
               <div>
                 <h3 className="font-bold text-lg">Sector</h3>
                 <p className="text-gray-700 mt-2">
-                  {franchiseData?.data?.operation?.sector || "Not specified"}
+                  {typeof franchiseData?.data?.operation?.sector === "string" ? franchiseData.data.operation.sector : "Not specified"}
                 </p>
               </div>
 
               <div>
                 <h3 className="font-bold text-lg">Service</h3>
-                {franchiseData?.data?.operation?.service && franchiseData.data.operation.service.length > 0 ? (
+                {Array.isArray(franchiseData?.data?.operation?.service) && franchiseData.data.operation.service.length > 0 ? (
                   <ul className="list-disc pl-5 mt-2 text-gray-700 space-y-1">
                     {franchiseData.data.operation.service.map((service, index) => (
-                      <li key={index}>{service}</li>
+                      <li key={index}>{typeof service === "string" ? service : ""}</li>
                     ))}
                   </ul>
                 ) : (
                   <p className="text-gray-700 mt-2">
-                    {franchiseData?.data?.operation?.required_property || "Not specified"}
+                    {typeof franchiseData?.data?.operation?.required_property === "string" ? franchiseData.data.operation.required_property : "Not specified"}
                   </p>
                 )}
               </div>
@@ -119,15 +119,15 @@ export default function FranchiseTabs({ franchiseData }) {
               <div>
                 <h3 className="font-bold text-lg">Qualifications Required</h3>
                 <p className="text-gray-700 mt-2 leading-relaxed">
-                  {franchiseData?.data?.operation?.qualification_required || "Not specified"}
+                  {typeof franchiseData?.data?.operation?.qualification_required === "string" ? franchiseData.data.operation.qualification_required : "Not specified"}
                 </p>
               </div>
 
               <div>
                 <h3 className="font-bold text-lg">Staff Required</h3>
                 <p className="text-gray-700 mt-2">
-                  {franchiseData?.data?.operation?.staff_required
-                    ? `${franchiseData.data.operation.staff_required.min} – ${franchiseData.data.operation.staff_required.max} staff members`
+                  {franchiseData?.data?.operation?.staff_required && typeof franchiseData.data.operation.staff_required === "object"
+                    ? `${franchiseData.data.operation.staff_required.min || 0} – ${franchiseData.data.operation.staff_required.max || 0} staff members`
                     : "Not specified"}
                 </p>
               </div>
@@ -140,7 +140,7 @@ export default function FranchiseTabs({ franchiseData }) {
                   Is absentee ownership allowed?
                 </h3>
                 <p className="text-gray-700 mt-2 leading-relaxed">
-                  {franchiseData?.data?.operation?.is_absentee_ownership_allowed || "Not specified"}
+                  {typeof franchiseData?.data?.operation?.is_absentee_ownership_allowed === "string" ? franchiseData.data.operation.is_absentee_ownership_allowed : "Not specified"}
                 </p>
               </div>
 
@@ -149,7 +149,7 @@ export default function FranchiseTabs({ franchiseData }) {
                   Can this franchise be run from home/mobile?
                 </h3>
                 <p className="text-gray-700 mt-2">
-                  {franchiseData?.data?.operation?.can_be_run_from_home_or_mobile || "Not specified"}
+                  {typeof franchiseData?.data?.operation?.can_be_run_from_home_or_mobile === "string" ? franchiseData.data.operation.can_be_run_from_home_or_mobile : "Not specified"}
                 </p>
               </div>
 
@@ -170,12 +170,14 @@ export default function FranchiseTabs({ franchiseData }) {
                 <h3 className="font-bold text-lg">Initial Investment</h3>
                 <p className="text-gray-700 mt-2">
                   {franchiseData?.data?.investment_details?.initial_investment 
-                    ? `₹${franchiseData.data.investment_details.initial_investment.min} – ₹${franchiseData.data.investment_details.initial_investment.max} ${franchiseData.data.investment_details.initial_investment.unit}`
+                    ? (typeof franchiseData.data.investment_details.initial_investment === 'object'
+                        ? `₹${franchiseData.data.investment_details.initial_investment.min || 0} – ₹${franchiseData.data.investment_details.initial_investment.max || 0} ${franchiseData.data.investment_details.initial_investment.unit || ""}`
+                        : franchiseData.data.investment_details.initial_investment)
                     : "Not specified"}
                 </p>
                 {franchiseData?.data?.investment_details?.initial_investment?.notes && (
                   <p className="text-gray-600 text-sm mt-1">
-                    {franchiseData.data.investment_details.initial_investment.notes}
+                    {typeof franchiseData.data.investment_details.initial_investment.notes === 'string' ? franchiseData.data.investment_details.initial_investment.notes : ""}
                   </p>
                 )}
               </div>
@@ -193,7 +195,9 @@ export default function FranchiseTabs({ franchiseData }) {
                 <h3 className="font-bold text-lg">Franchise Fee</h3>
                 <p className="text-gray-700 mt-2">
                   {franchiseData?.data?.investment_details?.franchise_fee 
-                    ? `₹${franchiseData.data.investment_details.franchise_fee.min} to ₹${franchiseData.data.investment_details.franchise_fee.max} ${franchiseData.data.investment_details.franchise_fee.unit}`
+                    ? (typeof franchiseData.data.investment_details.franchise_fee === 'object'
+                        ? `₹${franchiseData.data.investment_details.franchise_fee.min || 0} to ₹${franchiseData.data.investment_details.franchise_fee.max || 0} ${franchiseData.data.investment_details.franchise_fee.unit || ""}`
+                        : franchiseData.data.investment_details.franchise_fee)
                     : "Not specified"}
                 </p>
               </div>
@@ -218,7 +222,9 @@ export default function FranchiseTabs({ franchiseData }) {
                 </h3>
                 <p className="text-gray-700 mt-2 leading-relaxed">
                   {franchiseData?.data?.investment_details?.floor_area 
-                    ? `${franchiseData.data.investment_details.floor_area.min} – ${franchiseData.data.investment_details.floor_area.max} ${franchiseData.data.investment_details.floor_area.unit}`
+                    ? (typeof franchiseData.data.investment_details.floor_area === 'object'
+                        ? `${franchiseData.data.investment_details.floor_area.min || 0} – ${franchiseData.data.investment_details.floor_area.max || 0} ${franchiseData.data.investment_details.floor_area.unit || ""}`
+                        : franchiseData.data.investment_details.floor_area)
                     : "Not specified"}
                 </p>
               </div>
@@ -237,8 +243,8 @@ export default function FranchiseTabs({ franchiseData }) {
               <div>
                 <h3 className="font-bold text-lg">Products</h3>
                 <ul className="list-disc pl-5 mt-2 text-gray-700 space-y-1">
-                  {(franchiseData?.data?.business_overview?.products || []).map((product, index) => (
-                    <li key={index}>{product}</li>
+                  {Array.isArray(franchiseData?.data?.business_overview?.products) && (franchiseData?.data?.business_overview?.products || []).map((product, index) => (
+                    <li key={index}>{typeof product === "string" ? product : ""}</li>
                   ))}
                 </ul>
               </div>
@@ -246,8 +252,8 @@ export default function FranchiseTabs({ franchiseData }) {
               <div>
                 <h3 className="font-bold text-lg">Services</h3>
                 <ul className="list-disc pl-5 mt-2 text-gray-700 space-y-1">
-                  {(franchiseData?.data?.business_overview?.services || []).map((service, index) => (
-                    <li key={index}>{service}</li>
+                  {Array.isArray(franchiseData?.data?.business_overview?.services) && (franchiseData?.data?.business_overview?.services || []).map((service, index) => (
+                    <li key={index}>{typeof service === "string" ? service : ""}</li>
                   ))}
                 </ul>
               </div>

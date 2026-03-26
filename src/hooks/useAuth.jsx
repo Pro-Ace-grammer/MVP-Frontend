@@ -1,12 +1,7 @@
 import { useState, useEffect } from "react";
-import Keycloak from "keycloak-js";
+import keycloak from "../keycloak";
 
-// 🔹 Configure Keycloak
-const keycloak = new Keycloak({
-  url: "http://localhost:8080",   // Keycloak server URL
-  realm: "myrealm",              // 🔁 Replace with your realm name
-  clientId: "myclient",          // 🔁 Replace with your client ID
-});
+// 🔹 Note: Keycloak is configured in src/keycloak.js using environment variables
 
 const useAuth = () => {
   const [isLogin, setIsLogin] = useState(false);

@@ -30,75 +30,9 @@ const SignUp = ({ keycloak }) => {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    try {
-      // Register user with Keycloak
-      const adminToken = await getAdminToken();
-
-      const userData = {
-        username: formData.email,
-        email: formData.email,
-        firstName: formData.fullName.split(' ')[0],
-        lastName: formData.fullName.split(' ').slice(1).join(' ') || '',
-        enabled: true,
-        attributes: {
-          phone: [formData.phone],
-        },
-        credentials: [
-          {
-            type: 'password',
-            value: formData.password,
-            temporary: false,
-          },
-        ],
-      };
-
-      const registerUrl = `${keycloak.authServerUrl}/admin/realms/${keycloak.realm}/users`;
-
-      await axios.post(registerUrl, userData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${adminToken}`,
-        },
-      });
-
-      // Auto-login after registration
-      const tokenUrl = `${keycloak.authServerUrl}/realms/${keycloak.realm}/protocol/openid-connect/token`;
-
-      const params = new URLSearchParams();
-      params.append('client_id', keycloak.clientId);
-      params.append('username', formData.email);
-      params.append('password', formData.password);
-      params.append('grant_type', 'password');
-
-      const response = await axios.post(tokenUrl, params, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      });
-
-      // Set the token in keycloak instance
-      keycloak.token = response.data.access_token;
-      keycloak.refreshToken = response.data.refresh_token;
-      keycloak.authenticated = true;
-      keycloak.tokenParsed = JSON.parse(atob(response.data.access_token.split('.')[1]));
-
-      // Redirect to home
-      navigate('/');
-    } catch (err) {
-      console.error('Registration error:', err);
-      if (err.response?.status === 409) {
-        setError('An account with this email already exists.');
-      } else {
-        setError('Registration failed. Please try again.');
-      }
-    } finally {
-      setLoading(false);
-    }
+    handleKeycloakRegister();
   };
 
   const getAdminToken = async () => {
@@ -111,7 +45,7 @@ const SignUp = ({ keycloak }) => {
   const handleKeycloakRegister = () => {
     // Use Keycloak's built-in registration with your custom redirect
     keycloak.register({
-      redirectUri: window.location.origin + '/',
+      redirectUri: window.location.origin + '/callback',
     });
   };
 

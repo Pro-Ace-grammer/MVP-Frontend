@@ -19,6 +19,24 @@
                 </div>
             </#if>
 
+            <#-- First Name -->
+            <div class="form-group">
+                <label for="firstName">First Name</label>
+                <div class="input-wrapper">
+                    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    <input type="text" id="firstName" class="pf-c-form-control" name="firstName" value="${(register.formData.firstName!'')}" placeholder="Type first name here" />
+                </div>
+            </div>
+
+            <#-- Last Name -->
+            <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <div class="input-wrapper">
+                    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    <input type="text" id="lastName" class="pf-c-form-control" name="lastName" value="${(register.formData.lastName!'')}" placeholder="Type last name here" />
+                </div>
+            </div>
+
             <#-- Email -->
             <div class="form-group">
                 <label for="email">Email</label>
@@ -46,10 +64,6 @@
                     </div>
                 </div>
             </#if>
-
-            <#-- Hidden placeholders for Name fields (if required by Keycloak but removed from UI) -->
-            <input type="hidden" name="firstName" value="User" />
-            <input type="hidden" name="lastName" value="LeMiCi" />
 
             <div id="kc-form-buttons">
                 <input class="pf-c-button pf-m-primary" type="submit" value="Sign Up" id="kc-login"/>

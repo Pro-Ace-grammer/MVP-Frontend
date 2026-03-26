@@ -5,10 +5,34 @@ import axios from "axios";
 const app = express();
 
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: "http://localhost:3000",
 }));
 
 const BASE_URL = "http://3.109.151.16:8080/api/v1/franchises";
+const AUTH_BASE_URL = "http://3.109.151.16:8080/api/v1/auth";
+
+app.use(express.json()); // Enable JSON body parsing for login requests
+
+// 🔑 Auth endpoints
+app.post("/api/auth/login", async (req, res) => {
+  try {
+    const response = await axios.post(`${AUTH_BASE_URL}/login`, req.body);
+    res.json(response.data);
+  } catch (error) {
+    console.error("❌ Auth Login Error:", error.response?.data || error.message);
+    res.status(error.response?.status || 500).json(error.response?.data || { error: "Login failed" });
+  }
+});
+
+app.post("/api/auth/logout", async (req, res) => {
+  try {
+    const response = await axios.post(`${AUTH_BASE_URL}/logout`, req.body);
+    res.json(response.data);
+  } catch (error) {
+    console.error("❌ Auth Logout Error:", error.response?.data || error.message);
+    res.status(error.response?.status || 500).json(error.response?.data || { error: "Logout failed" });
+  }
+});
 
 
 // 1️⃣ Listing endpoint

@@ -19,6 +19,9 @@ import {
 } from "react-icons/fa";
 import FranchiseTabs from "./FranchiseTabs";
 import { MdVerified } from "react-icons/md";
+import FeaturedFranchiseCategories from "../../../../../pages/FeaturedFranchiseCategories";
+import CategoryQuestions from "../../../../../pages/CategoryQuestions";
+import RecommendedFranchises from "../../../../../pages/RecommendedFranchises";
 const IndFranchiseSport = () => {
 
   const [showAllInfo, setShowAllInfo] = useState(false);
@@ -473,127 +476,59 @@ const IndFranchiseSport = () => {
       {/*
        */}
       <div className="w-full px-6 py-10 bg-white">
-        <div className="flex gap-6">
-          {/* Left side - Franchise grid */}
-          <div className="w-[80%]">
-            <h2 className="text-2xl font-semibold mb-6">
-              Featured food franchise categories
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {franchises1.map((item, index) => (
-                <div key={index}>
-                  <div
-                    key={index}
-                    className="rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition bg-white"
-                  >
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-48 object-cover"
-                    />
-                  </div>
-                  <div className="text-center p-2">
-                    <p className="font-medium text-gray-800">{item.name}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            {/* View more link */}
-            <div className="mt-4 text-right">
-              <a href="#" className="text-blue-600 hover:underline">
-                View more →
-              </a>
-            </div>
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
+          {/* Left side - Franchise categories */}
+          <div className="flex-1">
+            <FeaturedFranchiseCategories
+              title="Featured golf franchise categories"
+              data={franchises1} // Using the local static data for now
+              showViewMore={true}
+            />
           </div>
 
-          {/* Right side - Insights */}
-          <div className="border rounded-xl px-4 py-2 bg-gray-50">
-            <h3 className="text-2xl font-bold mb-4">
-              Understanding Category franchise
-            </h3>
-            <ul className="space-y-3">
-              {insights.map((q, i) => (
-                <li key={i}>
-                  <a
-                    href="#"
-                    className="text-[#268BFF] hover:underline text-base leading-relaxed block"
-                  >
-                    {q}
-                  </a>
-                </li>
-              ))}
-            </ul>
+          {/* Right side - Insights/Questions */}
+          <div className="lg:w-[460px] sticky top-24">
+            <CategoryQuestions 
+              data={insights} 
+            />
           </div>
         </div>
       </div>
-      <div className="w-full px-6 py-10 bg-white">
-        <h2 className="text-2xl font-semibold mb-6">Recommended Franchise</h2>
-        <div className="grid md:grid-cols-4 gap-6">
-          {/* Left side: Franchise cards */}
-          <div className="md:col-span-3 overflow-x-auto flex gap-4 pb-2">
-            {franchises2.map((item, index) => (
-              <div
-                key={index}
-                className="min-w-[220px] h-full rounded-xl overflow-hidden border shadow-sm hover:shadow-md transition relative group"
-              >
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute bottom-1 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-1 pb-2">
-                  <h3 className="font-semibold text-white text-lg">
-                    {item.name}
-                  </h3>
-                  <p className="text-sm text-gray-200 mt-1">{item.category}</p>
-                  <button className="mt-3 bg-white w-full border-2 border-white px-4 py-1 rounded-full hover:bg-white hover:text-black transition">
-                    Explore
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Right side: Market insights */}
-          <div className="border border-[#EDEDED] rounded-xl p-6   ">
-            <h3 className="text-lg font-bold mb-3">Key Market insights</h3>
-            <div className="space-y-3">
-              <div>
-                <p className="text-[#268BFF] font-medium">Market Trend</p>
-                <p className="text-gray-600 text-sm mt-1">
-                  Golf is evolving from an elite outdoor sport to an accessible
-                  indoor entertainment and training experience through
-                  simulators and golf lounges.
-                </p>
-              </div>
-              <div>
-                <p className="text-[#268BFF] font-medium">Growth Rate</p>
-                <p className="text-gray-600 text-sm mt-1">
-                  The indoor golf simulator market in India is growing at a CAGR
-                  of 17–20%, driven by rising disposable income in premium
-                  experiences, and tech adoption.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Disclaimer */}
-        <p className="mt-6 text-xs text-gray-500 leading-relaxed">
-          <strong>Disclaimer:</strong> LeMiCi IQ is an integrated franchise
-          solution company since 2025 and an absolute authority on franchising
-          and licensing. FIHL (www.lemici.com) and the site sponsors accept no
-          liability for the accuracy of any information contained on this site
-          or other linked sites. We recommend you take advice from a lawyer,
-          accountant, and franchise consultant experienced in franchising before
-          you commit yourself. It is the user's responsibility to verify
-          accuracy and reliability. Please read the{" "}
-          <a href="#" className="text-blue-600 hover:underline">
-            terms & condition
-          </a>
-          .
+<div className="w-full px-6 py-10 bg-white border-t border-gray-100">
+  <div className="mb-16">
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
+      <div>
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">Recommended Golf Franchises</h2>
+        <p className="text-gray-500 max-w-2xl text-sm sm:text-base">
+          Discover top-rated franchises handpicked based on your preferences and
+          investment range. Explore high-potential businesses that are expanding fast.
         </p>
       </div>
+      <button className="text-[#4A53FA] text-sm font-bold hover:underline flex items-center gap-1.5 shrink-0 mb-1">
+        View more <span className="text-lg">→</span>
+      </button>
+    </div>
+    <RecommendedFranchises />
+  </div>
+
+  {/* Disclaimer */}
+  <div className="mt-12 pt-8 border-t border-gray-100">
+    <p className="text-xs text-gray-400 leading-relaxed italic">
+      <strong>Disclaimer:</strong> LeMiCi IQ is an integrated franchise solution
+      company since 2025 and an absolute authority on franchising and licensing.
+      FIHL (www.lemici.com) and the site sponsors accept no liability for the
+      accuracy of any information contained on this site or other linked sites.
+      We recommend you take advice from a lawyer, accountant, and franchise
+      consultant experienced in franchising before you commit yourself. It is
+      the user's responsibility to verify accuracy and reliability. Please read
+      the{" "}
+      <a href="#" className="text-blue-500 hover:underline active:text-blue-700 transition-colors">
+        terms & condition
+      </a>
+      .
+    </p>
+  </div>
+</div>
     </div>
   );
 };

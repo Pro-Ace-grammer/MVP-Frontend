@@ -26,32 +26,24 @@ const SignIn = ({ keycloak }) => {
     setLoading(true);
 
     try {
-      // Get Keycloak token using Direct Access Grant (Resource Owner Password Credentials)
-      const tokenUrl = `${keycloak.url}/realms/${keycloak.realm}/protocol/openid-connect/token`;
-
-      const params = new URLSearchParams();
-      params.append('client_id', keycloak.clientId);
-      params.append('username', email);
-      params.append('password', password);
-      params.append('grant_type', 'password');
-
-      const response = await axios.post(tokenUrl, params, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
+      // 🚀 NEW: Call backend-mediated auth instead of direct Keycloak Password Grant
+      // The backend expects a redirectUrl for the Auth Code flow initiation
+      const response = await axios.post("/api/auth/login", {
+        redirectUrl: window.location.origin + "/callback"
       });
 
-      // Set the token in keycloak instance
-      keycloak.token = response.data.access_token;
-      keycloak.refreshToken = response.data.refresh_token;
-      keycloak.authenticated = true;
-      keycloak.tokenParsed = JSON.parse(atob(response.data.access_token.split('.')[1]));
-
-      // Redirect to home or dashboard
-      navigate('/');
+      if (response.data.loginUrl) {
+        // Redirect user to Keycloak login page
+        window.location.href = response.data.loginUrl;
+      } else if (response.data.url) {
+        window.location.href = response.data.url;
+      } else {
+        // Fallback or handle direct token response if supported by your backend
+        console.log("Login initiated:", response.data);
+      }
     } catch (err) {
-      console.error('Login error:', err);
-      setError('Invalid email or password. Please try again.');
+      console.error('Login error:', err.response?.data || err.message);
+      setError('Login initiation failed. Please check your backend connection.');
     } finally {
       setLoading(false);
     }
