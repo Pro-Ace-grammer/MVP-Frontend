@@ -3,7 +3,7 @@ import { Send, Loader2, Search, AlertCircle, TrendingUp, MapPin, Users, Building
 import { Toaster, toast } from 'react-hot-toast';
 const backendUrl = import.meta.env.VITE_API_URL 
   ? `${import.meta.env.VITE_API_URL}/api/v1` 
-  : "http://localhost:3001/api";
+  : "http://3.109.151.16:8080/api/v1";
 const claudeApi = import.meta.env.VITE_claudeApi;
 const tavilyApi = import.meta.env.VITE_tavilyApi;
 // Dynamic Component Renderers
