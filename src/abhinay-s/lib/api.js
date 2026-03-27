@@ -1,7 +1,10 @@
 import axios from "axios";
 
-const PROXY_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
-const API_PREFIX = import.meta.env.VITE_API_URL ? "/api/v1" : "/api";
+const VITE_API_URL = import.meta.env.VITE_API_URL || "http://3.109.151.16:8080";
+const BASE_URL = VITE_API_URL;
+const PROXY_URL = `${VITE_API_URL}/api/v1`;
+
+console.log("Using API Config:", { VITE_API_URL, PROXY_URL, BASE_URL });
 
 async function request(path, options = {}) {
   const url = path.startsWith("http") ? path : `${BASE_URL}${path}`;
@@ -51,7 +54,7 @@ export async function getFranchiseFlags() {
 
 export const fetchFranchiseHome = async () => {
   const response = await axios.get(
-    `${PROXY_URL}${API_PREFIX}/franchises/home`,
+    `${PROXY_URL}/franchises/home`,
     {
       headers: {
         Accept: "application/json",
@@ -66,7 +69,7 @@ export const fetchFranchiseHome = async () => {
 
 export const fetchFranchiseListing = async (industry, page) => {
   const response = await axios.get(
-    `${PROXY_URL}${API_PREFIX}/franchises/listing`,
+    `${PROXY_URL}/franchises/listing`,
     {
       params: {
         industry: industry?.toLowerCase() || "food", // Default to food if null
@@ -86,7 +89,7 @@ export const fetchFranchiseDetails = async (slug) => {
   const finalSlug = slug || "chai-point";
 
   const response = await axios.get(
-    `${PROXY_URL}${API_PREFIX}/franchises/detail/${finalSlug}`,
+    `${PROXY_URL}/franchises/detail/${finalSlug}`,
     {
       headers: {
         Accept: "application/json",
@@ -100,7 +103,7 @@ export const fetchFranchiseDetails = async (slug) => {
 
 export const searchFranchise = async (query) => {
   const response = await axios.get(
-    `${PROXY_URL}${API_PREFIX}/franchises/search`,
+    `${PROXY_URL}/franchises/search`,
     {
       params: { query },
       headers: {
@@ -115,7 +118,7 @@ export const searchFranchise = async (query) => {
 
 export const fetchIndustries = async () => {
   const response = await axios.get(
-    `${PROXY_URL}${API_PREFIX}/franchises/industries`,
+    `${PROXY_URL}/franchises/industries`,
     {
       headers: {
         Accept: "application/json",
