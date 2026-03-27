@@ -27,3 +27,4 @@ keycloak
   .catch((err) => {
     console.warn("Keycloak init failed (is Docker running?)", err);
   });
+// Testing
