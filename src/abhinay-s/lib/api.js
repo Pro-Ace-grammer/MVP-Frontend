@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = "https://backend-demo-b36h.onrender.com";
-const PROXY_URL = "http://localhost:3001";
+const PROXY_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const API_PREFIX = import.meta.env.VITE_API_URL ? "/api/v1" : "/api";
 
 async function request(path, options = {}) {
   const url = path.startsWith("http") ? path : `${BASE_URL}${path}`;
@@ -51,7 +51,7 @@ export async function getFranchiseFlags() {
 
 export const fetchFranchiseHome = async () => {
   const response = await axios.get(
-    `${PROXY_URL}/api/franchises/home`,
+    `${PROXY_URL}${API_PREFIX}/franchises/home`,
     {
       headers: {
         Accept: "application/json",
@@ -66,7 +66,7 @@ export const fetchFranchiseHome = async () => {
 
 export const fetchFranchiseListing = async (industry, page) => {
   const response = await axios.get(
-    `${PROXY_URL}/api/franchises/listing`,
+    `${PROXY_URL}${API_PREFIX}/franchises/listing`,
     {
       params: {
         industry: industry?.toLowerCase() || "food", // Default to food if null
@@ -86,7 +86,7 @@ export const fetchFranchiseDetails = async (slug) => {
   const finalSlug = slug || "chai-point";
 
   const response = await axios.get(
-    `${PROXY_URL}/api/franchises/detail/${finalSlug}`,
+    `${PROXY_URL}${API_PREFIX}/franchises/detail/${finalSlug}`,
     {
       headers: {
         Accept: "application/json",
@@ -100,7 +100,7 @@ export const fetchFranchiseDetails = async (slug) => {
 
 export const searchFranchise = async (query) => {
   const response = await axios.get(
-    `${PROXY_URL}/api/franchises/search`,
+    `${PROXY_URL}${API_PREFIX}/franchises/search`,
     {
       params: { query },
       headers: {
@@ -115,7 +115,7 @@ export const searchFranchise = async (query) => {
 
 export const fetchIndustries = async () => {
   const response = await axios.get(
-    `${PROXY_URL}/api/franchises/industries`,
+    `${PROXY_URL}${API_PREFIX}/franchises/industries`,
     {
       headers: {
         Accept: "application/json",

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, Loader2, Search, AlertCircle, TrendingUp, MapPin, Users, Building, Clock, Star } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
-const backendUrl = "https://cuddly-fiesta-wr76xgjx5qwj2jrr-3001.app.github.dev";
+const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const claudeApi = import.meta.env.VITE_claudeApi;
 const tavilyApi = import.meta.env.VITE_tavilyApi;
 // Dynamic Component Renderers
