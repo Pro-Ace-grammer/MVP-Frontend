@@ -12,6 +12,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     port: 3000,
+    allowedHosts: ['excruciating-unfeudal-karlie.ngrok-free.dev']
   },
   resolve: {
     alias: {
